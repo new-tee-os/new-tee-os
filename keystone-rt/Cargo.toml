@@ -1,0 +1,8 @@
+[package]
+name = "keystone-rt"
+version = "0.1.0"
+authors = ["kazurin"]
+edition = "2018"
+
+[dependencies]
+riscv = { version = "0.6.0", features = ["inline-asm"] }

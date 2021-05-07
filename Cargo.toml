@@ -1,5 +1,0 @@
-[workspace]
-members = [
-    "keystone-rt",
-]
-default-members = ["keystone-rt"]

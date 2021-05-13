@@ -83,7 +83,11 @@ fn copy_to_enclave(enclave: &KeystoneDev, src: &[u8], dest_offset: usize) {
 
 fn main() {
     let mut kernel_file = File::open("keystone-rt.bin").expect("failed to open keystone-rt.bin");
-    let kernel_mem_size = 0xB000;
+    // keystone-rt.bin contains everything until _end
+    let kernel_mem_size = kernel_file
+        .metadata()
+        .expect("failed to stat keystone-rt.bin")
+        .len() as usize;
 
     let mut enclave = KeystoneDev::open().expect("failed to open Keystone device");
     enclave.create(0x20).expect("failed to create enclave");

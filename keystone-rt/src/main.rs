@@ -5,6 +5,7 @@
 mod entry;
 mod panic;
 mod sbi;
+mod trap;
 mod uart;
 
 #[no_mangle]

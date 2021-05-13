@@ -88,9 +88,12 @@ fn main() {
         .metadata()
         .expect("failed to stat keystone-rt.bin")
         .len() as usize;
+    let epm_size = 0x30_000;
 
     let mut enclave = KeystoneDev::open().expect("failed to open Keystone device");
-    enclave.create(0x20).expect("failed to create enclave");
+    enclave
+        .create(epm_size >> 12)
+        .expect("failed to create enclave");
     let epm_phys_base = enclave.phys_addr();
     let utm_phys_base = enclave
         .init_utm(0x1000)
@@ -127,7 +130,7 @@ fn main() {
     println!("Base: {:#X}", epm_phys_base);
     println!("Krnl: {:#X}", kernel_phys_base);
     println!("User: {:#X}", phys_free);
-    println!("End:  {:#X}", epm_phys_base + 0x20_000);
+    println!("End:  {:#X}", epm_phys_base + epm_size);
 
     enclave
         .finalize(

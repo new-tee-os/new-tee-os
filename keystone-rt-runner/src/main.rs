@@ -4,6 +4,7 @@ mod keystone;
 mod riscv;
 
 use keystone::{EnclaveStatus, KeystoneDev};
+use keystone_hal::edge::EdgeMemory;
 use riscv::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
 
 const KERNEL_BASE: usize = 0xffffffffc0000000;
@@ -81,6 +82,27 @@ fn copy_to_enclave(enclave: &KeystoneDev, src: &[u8], dest_offset: usize) {
     }
 }
 
+unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
+    use keystone_hal::edge::EdgeCallReq::{self, *};
+    use std::convert::TryFrom;
+
+    let edge_mem = &mut *edge_mem;
+    match EdgeCallReq::try_from(edge_mem.req).unwrap_or(EdgeCallInvalid) {
+        EdgeCallPrint => {
+            print!(
+                "{}",
+                std::str::from_utf8(edge_mem.read_buffer())
+                    .expect("the enclave tries to print an invalid UTF-8 string")
+            );
+            // return 42
+            edge_mem.req = 42;
+        }
+        _ => {
+            println!("Warning: invalid edge call number, ignoring");
+        }
+    }
+}
+
 fn main() {
     let mut kernel_file = File::open("keystone-rt.bin").expect("failed to open keystone-rt.bin");
     // keystone-rt.bin contains everything until _end
@@ -124,6 +146,11 @@ fn main() {
             let virt = VirtAddr(KERNEL_BASE + (i << 12));
             root_page_table.map_4k(virt, PageTableEntry::for_phys(phys).make_rwx());
         }
+        // map untrusted memory
+        root_page_table.map_4k(
+            VirtAddr(KERNEL_BASE + (total_pages << 12)),
+            PageTableEntry::for_phys(PhysAddr(utm_phys_base)).make_rwx(),
+        );
     }
 
     let phys_free = kernel_phys_base + kernel_mem_size;
@@ -131,6 +158,7 @@ fn main() {
     println!("Krnl: {:#X}", kernel_phys_base);
     println!("User: {:#X}", phys_free);
     println!("End:  {:#X}", epm_phys_base + epm_size);
+    println!("UTM:  {:#X}", utm_phys_base);
 
     enclave
         .finalize(
@@ -146,6 +174,9 @@ fn main() {
         )
         .expect("failed to finalize enclave");
 
+    let edge_mem = unsafe { enclave.map_mem(0, 0x1000) }.expect("failed to map untrusted memory")
+        as *mut EdgeMemory;
+
     let mut status = enclave.run().expect("failed to run enclave");
     loop {
         match status {
@@ -154,6 +185,12 @@ fn main() {
                 break;
             }
             EnclaveStatus::Interrupted => (),
+            EnclaveStatus::EdgeCallHost => {
+                //println!("Edge call requested");
+                unsafe {
+                    handle_edge_call(edge_mem);
+                }
+            }
             _ => panic!("Unexpected enclave status: {:?}", status),
         }
         status = enclave.resume().expect("failed to resume enclave");

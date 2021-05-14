@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+keystone-hal = { path = "../keystone-hal" }
 nix = "0.20.0"

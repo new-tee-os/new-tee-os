@@ -2,8 +2,6 @@
 #![no_main]
 #![feature(asm, global_asm, panic_info_message)]
 
-use keystone_hal::{edge::EdgeCallReq, rt::EDGE_MEM_BASE};
-
 mod entry;
 mod panic;
 mod sbi;
@@ -13,19 +11,18 @@ mod uart;
 #[no_mangle]
 extern "C" fn rt_init() {
     println!("Hello, RISC-V Keystone!");
-    println!("Edge memory address: {:?}", EDGE_MEM_BASE);
 
+    // execute U-mode program
     unsafe {
-        let edge_mem = &mut *EDGE_MEM_BASE;
-        edge_mem.req = EdgeCallReq::EdgeCallPrint.into();
-        edge_mem.write_buffer("Hello world from enclave!\n".as_bytes());
-    }
-
-    sbi::stop_enclave(sbi::STOP_EDGE_CALL_HOST);
-
-    unsafe {
-        let edge_mem = &*EDGE_MEM_BASE;
-        println!("Edge call result: {}", edge_mem.req);
+        riscv::register::sepc::write(0x400000);
+        riscv::register::sstatus::set_spp(riscv::register::sstatus::SPP::User);
+        asm!(
+            r#"
+            csrw sscratch, sp;
+            li sp, 0x402000;
+            sret
+            "#
+        );
     }
 
     sbi::exit_enclave(0);

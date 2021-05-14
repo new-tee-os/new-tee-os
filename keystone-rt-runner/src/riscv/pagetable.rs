@@ -21,6 +21,7 @@ pub struct RootPageTable<M: PageManager> {
 
 pub const PTE_VALID: u64 = 1;
 pub const PTE_RWX: u64 = 0xE;
+pub const PTE_USER: u64 = 16;
 pub const MODE_SV39: u64 = 8;
 
 impl PageTableEntry {
@@ -43,6 +44,12 @@ impl PageTableEntry {
     #[inline]
     pub fn is_leaf(self) -> bool {
         (self.0 & PTE_RWX) != 0
+    }
+
+    #[inline]
+    pub fn make_user(mut self) -> Self {
+        self.0 |= PTE_USER;
+        self
     }
 
     #[inline]

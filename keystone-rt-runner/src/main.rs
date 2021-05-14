@@ -121,9 +121,10 @@ fn main() {
         .init_utm(0x1000)
         .expect("failed to create untrusted memory (UTM)");
     let kernel_phys_base = epm_phys_base + 0x10_000;
+    let user_base = kernel_phys_base + kernel_mem_size;
 
     // load kernel to the EPM
-    let mut dest_offset = 0x10_000;
+    let mut dest_offset = kernel_phys_base - epm_phys_base;
     loop {
         let mut buf = [0; 0x1000];
         let bytes_read = kernel_file
@@ -136,6 +137,16 @@ fn main() {
         dest_offset += 0x1000;
     }
 
+    // load user program
+    {
+        let mut user_program = File::open("user.bin").expect("failed to open user.bin");
+        let mut buf = [0; 0x1000];
+        let bytes_read = user_program
+            .read(&mut buf)
+            .expect("failed to read user.bin");
+        copy_to_enclave(&enclave, &buf, user_base - epm_phys_base);
+    }
+
     // create page tables
     unsafe {
         let total_pages = kernel_mem_size >> 12;
@@ -146,6 +157,19 @@ fn main() {
             let virt = VirtAddr(KERNEL_BASE + (i << 12));
             root_page_table.map_4k(virt, PageTableEntry::for_phys(phys).make_rwx());
         }
+        // map user memory
+        root_page_table.map_4k(
+            VirtAddr(0x40_0000),
+            PageTableEntry::for_phys(PhysAddr(user_base))
+                .make_user()
+                .make_rwx(),
+        );
+        root_page_table.map_4k(
+            VirtAddr(0x40_1000),
+            PageTableEntry::for_phys(PhysAddr(user_base + 0x1000))
+                .make_user()
+                .make_rwx(),
+        );
         // map untrusted memory
         root_page_table.map_4k(
             VirtAddr(KERNEL_BASE + (total_pages << 12)),
@@ -153,17 +177,17 @@ fn main() {
         );
     }
 
-    let phys_free = kernel_phys_base + kernel_mem_size;
+    let phys_free = kernel_phys_base + kernel_mem_size + 0x2000;
     println!("Base: {:#X}", epm_phys_base);
     println!("Krnl: {:#X}", kernel_phys_base);
-    println!("User: {:#X}", phys_free);
+    println!("User: {:#X}", user_base);
     println!("End:  {:#X}", epm_phys_base + epm_size);
     println!("UTM:  {:#X}", utm_phys_base);
 
     enclave
         .finalize(
             kernel_phys_base,
-            phys_free,
+            user_base,
             phys_free,
             keystone::RuntimeParams {
                 runtime_entry: KERNEL_BASE,

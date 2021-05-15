@@ -3,8 +3,10 @@
 #![feature(asm, global_asm, panic_info_message)]
 
 mod entry;
+mod frame;
 mod panic;
 mod sbi;
+mod syscall;
 mod trap;
 mod uart;
 

@@ -12,7 +12,7 @@ unsafe fn syscall_write(fd: usize, ptr: usize, len: usize) -> usize {
         let ptr = ptr as *const u8;
         let content = core::slice::from_raw_parts(ptr, len);
         print!(
-            "{}",
+            "U-mode program writes: {}",
             core::str::from_utf8(content).expect("U-mode program tried to print invalid UTF-8")
         );
     }

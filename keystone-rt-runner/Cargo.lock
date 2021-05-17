@@ -32,6 +32,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "keystone-cfg"
+version = "0.1.0"
+
+[[package]]
 name = "keystone-hal"
 version = "0.1.0"
 dependencies = [
@@ -43,6 +47,7 @@ dependencies = [
 name = "keystone-rt-runner"
 version = "0.1.0"
 dependencies = [
+ "keystone-cfg",
  "keystone-hal",
  "nix",
 ]

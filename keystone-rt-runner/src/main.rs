@@ -4,10 +4,9 @@ mod keystone;
 mod riscv;
 
 use keystone::{EnclaveStatus, KeystoneDev};
+use keystone_cfg::*;
 use keystone_hal::edge::EdgeMemory;
 use riscv::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
-
-const KERNEL_BASE: usize = 0xffffffffc0000000;
 
 /// The enclave page manager, which supports linear page allocation for the page table.
 struct EnclaveMemoryManager<'a> {
@@ -31,7 +30,7 @@ impl<'a> EnclaveMemoryManager<'a> {
 impl PageManager for EnclaveMemoryManager<'_> {
     fn alloc_physical_page(&mut self) -> PhysAddr {
         let result = self.alloc_ptr;
-        self.alloc_ptr.0 += 0x1000;
+        self.alloc_ptr.0 += PAGE_SIZE;
         result
     }
 
@@ -42,7 +41,7 @@ impl PageManager for EnclaveMemoryManager<'_> {
         } else {
             let mapped = self
                 .enclave
-                .map_mem(phys.0 - self.phys_base.0, 0x1000)
+                .map_mem(phys.0 - self.phys_base.0, PAGE_SIZE)
                 .expect("failed to map enclave memory");
             self.memory_map.insert(phys, mapped);
             //println!("Map +{:#X} -> {:?}", phys.0 - self.phys_base.0, mapped);
@@ -57,7 +56,7 @@ impl Drop for EnclaveMemoryManager<'_> {
         for (_, ptr) in self.memory_map.drain() {
             unsafe {
                 self.enclave
-                    .unmap_mem(ptr, 0x1000)
+                    .unmap_mem(ptr, PAGE_SIZE)
                     .expect("failed to unmap enclave memory");
             }
         }
@@ -71,13 +70,13 @@ fn copy_to_enclave(enclave: &KeystoneDev, src: &[u8], dest_offset: usize) {
     assert_eq!(dest_offset & 0xFFF, 0);
     unsafe {
         let mem = enclave
-            .map_mem(dest_offset, 0x1000)
+            .map_mem(dest_offset, PAGE_SIZE)
             .expect("failed to map enclave memory");
         //println!("Map +{:#X} -> {:?}", dest_offset, mem);
-        let dest = std::slice::from_raw_parts_mut(mem as _, 0x1000);
+        let dest = std::slice::from_raw_parts_mut(mem as _, PAGE_SIZE);
         dest.copy_from_slice(src);
         enclave
-            .unmap_mem(mem, 0x1000)
+            .unmap_mem(mem, PAGE_SIZE)
             .expect("failed to unmap enclave memory");
     }
 }
@@ -110,23 +109,22 @@ fn main() {
         .metadata()
         .expect("failed to stat keystone-rt.bin")
         .len() as usize;
-    let epm_size = 0x30_000;
 
     let mut enclave = KeystoneDev::open().expect("failed to open Keystone device");
     enclave
-        .create(epm_size >> 12)
+        .create(EPM_SIZE >> 12)
         .expect("failed to create enclave");
     let epm_phys_base = enclave.phys_addr();
     let utm_phys_base = enclave
-        .init_utm(0x1000)
+        .init_utm(UTM_SIZE)
         .expect("failed to create untrusted memory (UTM)");
-    let kernel_phys_base = epm_phys_base + 0x10_000;
+    let kernel_phys_base = epm_phys_base + KERNEL_EPM_OFFSET;
     let user_base = kernel_phys_base + kernel_mem_size;
 
     // load kernel to the EPM
     let mut dest_offset = kernel_phys_base - epm_phys_base;
     loop {
-        let mut buf = [0; 0x1000];
+        let mut buf = [0; PAGE_SIZE];
         let bytes_read = kernel_file
             .read(&mut buf)
             .expect("failed to read keystone-rt.bin");
@@ -134,13 +132,13 @@ fn main() {
             break;
         }
         copy_to_enclave(&enclave, &buf, dest_offset);
-        dest_offset += 0x1000;
+        dest_offset += PAGE_SIZE;
     }
 
     // load user program
     {
         let mut user_program = File::open("user.bin").expect("failed to open user.bin");
-        let mut buf = [0; 0x1000];
+        let mut buf = [0; PAGE_SIZE];
         let bytes_read = user_program
             .read(&mut buf)
             .expect("failed to read user.bin");
@@ -159,14 +157,15 @@ fn main() {
         }
         // map user memory
         root_page_table.map_4k(
-            VirtAddr(0x40_0000),
+            VirtAddr(USER_BASE),
             PageTableEntry::for_phys(PhysAddr(user_base))
                 .make_user()
                 .make_rwx(),
         );
+        // map user stack
         root_page_table.map_4k(
-            VirtAddr(0x40_1000),
-            PageTableEntry::for_phys(PhysAddr(user_base + 0x1000))
+            VirtAddr(USER_BASE + PAGE_SIZE),
+            PageTableEntry::for_phys(PhysAddr(user_base + PAGE_SIZE))
                 .make_user()
                 .make_rwx(),
         );
@@ -177,11 +176,12 @@ fn main() {
         );
     }
 
-    let phys_free = kernel_phys_base + kernel_mem_size + 0x2000;
+    // kernel + user
+    let phys_free = kernel_phys_base + kernel_mem_size + 2 * PAGE_SIZE;
     println!("Base: {:#X}", epm_phys_base);
     println!("Krnl: {:#X}", kernel_phys_base);
     println!("User: {:#X}", user_base);
-    println!("End:  {:#X}", epm_phys_base + epm_size);
+    println!("End:  {:#X}", epm_phys_base + EPM_SIZE);
     println!("UTM:  {:#X}", utm_phys_base);
 
     enclave
@@ -193,12 +193,12 @@ fn main() {
                 runtime_entry: KERNEL_BASE,
                 user_entry: 0,
                 untrusted_ptr: utm_phys_base,
-                untrusted_size: 0x1000,
+                untrusted_size: UTM_SIZE,
             },
         )
         .expect("failed to finalize enclave");
 
-    let edge_mem = unsafe { enclave.map_mem(0, 0x1000) }.expect("failed to map untrusted memory")
+    let edge_mem = unsafe { enclave.map_mem(0, PAGE_SIZE) }.expect("failed to map untrusted memory")
         as *mut EdgeMemory;
 
     let mut status = enclave.run().expect("failed to run enclave");

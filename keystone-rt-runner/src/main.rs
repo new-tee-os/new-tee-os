@@ -1,12 +1,11 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
 mod keystone;
-mod riscv;
 
 use keystone::{EnclaveStatus, KeystoneDev};
 use keystone_cfg::*;
 use keystone_hal::edge::EdgeMemory;
-use riscv::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
+use keystone_hal::riscv::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
 
 /// The enclave page manager, which supports linear page allocation for the page table.
 struct EnclaveMemoryManager<'a> {

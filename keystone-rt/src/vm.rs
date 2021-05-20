@@ -55,20 +55,28 @@ unsafe extern "C" fn vm_init(
             PageTableEntry::for_phys(PhysAddr(runtime_phys + (i << 12))).make_rwx(),
         );
     }
-    // map user code
-    root_page_table.map_4k(
-        VirtAddr(USER_BASE),
-        PageTableEntry::for_phys(PhysAddr(user_phys))
-            .make_user()
-            .make_rwx(),
+    // map user code & stack
+    for i in 0..((free_phys - user_phys) >> 12) {
+        root_page_table.map_4k(
+            VirtAddr(USER_BASE + (i << 12)),
+            PageTableEntry::for_phys(PhysAddr(user_phys + (i << 12)))
+                .make_user()
+                .make_rwx(),
+        );
+    }
+    // map EPM mirror
+    assert!(epm_size <= (2 << 20)); // 2 MB
+    root_page_table.map_2m(
+        VirtAddr(KERNEL_MIRROR_BASE),
+        PageTableEntry::for_phys(PhysAddr(epm_base)).make_rwx(),
     );
-    // map user stack
-    root_page_table.map_4k(
-        VirtAddr(USER_BASE + PAGE_SIZE),
-        PageTableEntry::for_phys(PhysAddr(user_phys + PAGE_SIZE))
-            .make_user()
-            .make_rwx(),
-    );
+    // map untrusted memory
+    for i in 0..(utm_size >> 12) {
+        root_page_table.map_4k(
+            VirtAddr(KERNEL_UTM_BASE + (i << 12)),
+            PageTableEntry::for_phys(PhysAddr(utm_phys + (i << 12))).make_rwx(),
+        );
+    }
 
     // write to satp
     satp::set(satp::Mode::Sv39, 0, rpt_phys >> 12);

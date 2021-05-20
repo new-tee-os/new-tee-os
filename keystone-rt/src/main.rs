@@ -5,7 +5,6 @@
 mod entry;
 mod frame;
 mod panic;
-mod sbi;
 mod syscall;
 mod trap;
 mod uart;

@@ -1,4 +1,4 @@
-use crate::{frame::TrapFrame, println, syscall::handle_syscall};
+use crate::{frame::TrapFrame, uart_println, syscall::handle_syscall};
 
 global_asm!(include_str!("asm/trap.S"));
 
@@ -18,9 +18,9 @@ unsafe extern "C" fn trap_handler(frame: *mut TrapFrame) {
 fn unknown_trap() -> ! {
     use riscv::register::*;
 
-    println!("\n     ##### Kernel trapped! #####");
-    println!("scause = {:?}", scause::read().cause());
-    println!("sepc   = {:#X}", sepc::read());
-    println!("stval  = {:#X}", stval::read());
+    uart_println!("\n     ##### Kernel trapped! #####");
+    uart_println!("scause = {:?}", scause::read().cause());
+    uart_println!("sepc   = {:#X}", sepc::read());
+    uart_println!("stval  = {:#X}", stval::read());
     panic!("kernel trapped");
 }

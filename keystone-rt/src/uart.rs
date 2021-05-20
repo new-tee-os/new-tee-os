@@ -14,22 +14,22 @@ impl Write for UnsafeUart {
 }
 
 #[macro_export]
-macro_rules! print {
+macro_rules! uart_print {
     ($($args:tt)+) => ({
         use core::fmt::Write;
-        write!(crate::uart::UnsafeUart, $($args)+).unwrap()
+        write!($crate::uart::UnsafeUart, $($args)+).unwrap()
     });
 }
 
 #[macro_export]
-macro_rules! println {
+macro_rules! uart_println {
     () => ({
-        crate::print!("\n")
+        $crate::uart_print!("\n")
     });
     ($fmt:expr) => ({
-        crate::print!(concat!($fmt, "\n"))
+        $crate::uart_print!(concat!($fmt, "\n"))
     });
     ($fmt:expr, $($args:tt)+) => ({
-        crate::print!(concat!($fmt, "\n"), $($args)+)
+        $crate::uart_print!(concat!($fmt, "\n"), $($args)+)
     });
 }

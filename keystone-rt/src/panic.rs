@@ -1,12 +1,12 @@
-use crate::{print, println};
+use crate::{uart_print, uart_println};
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    print!("Kernel panic - aborting: ");
+    uart_print!("Kernel panic - aborting: ");
     if let Some(p) = info.location() {
-        println!("at {}:{}: {}", p.file(), p.line(), info.message().unwrap());
+        uart_println!("at {}:{}: {}", p.file(), p.line(), info.message().unwrap());
     } else {
-        println!("no information available.");
+        uart_println!("no information available.");
     }
     loop {
         unsafe {

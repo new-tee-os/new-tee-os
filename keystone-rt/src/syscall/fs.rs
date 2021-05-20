@@ -1,7 +1,7 @@
 use riscv::register::sstatus;
 
 use super::SyscallHandler;
-use crate::print;
+use keystone_hal::print;
 
 pub const SYSCALL_WRITE: SyscallHandler = SyscallHandler::Syscall3(syscall_write);
 

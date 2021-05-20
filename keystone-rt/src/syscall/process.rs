@@ -1,7 +1,7 @@
 use keystone_hal as hal;
 
 use super::SyscallHandler;
-use crate::println;
+use keystone_hal::println;
 
 pub const SYSCALL_EXIT: SyscallHandler = SyscallHandler::Syscall1(syscall_exit);
 

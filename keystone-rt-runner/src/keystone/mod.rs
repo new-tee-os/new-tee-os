@@ -22,7 +22,6 @@ pub enum EnclaveStatus {
 
 const KEYSTONE_DEV_PATH: &str = "/dev/keystone_enclave";
 
-#[allow(unused)]
 impl KeystoneDev {
     pub fn open() -> std::io::Result<KeystoneDev> {
         let file = OpenOptions::new()
@@ -159,7 +158,7 @@ impl KeystoneDev {
     }
 
     pub fn destroy(&mut self) -> nix::Result<()> {
-        let mut ioctl_req = ioctl::CreateEnclave {
+        let ioctl_req = ioctl::CreateEnclave {
             eid: self.eid.expect("enclave not yet created"),
             ..Default::default()
         };

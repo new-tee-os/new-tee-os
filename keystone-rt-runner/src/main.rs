@@ -151,6 +151,7 @@ fn main() {
         let bytes_read = user_program
             .read(&mut buf)
             .expect("failed to read user.bin");
+        assert!(bytes_read <= PAGE_SIZE);
         copy_to_enclave(&enclave, &buf, user_base - epm_phys_base);
     }
 
@@ -177,6 +178,7 @@ fn main() {
     println!("User: {:#X}", user_base);
     println!("End:  {:#X}", epm_phys_base + EPM_SIZE);
     println!("UTM:  {:#X}", utm_phys_base);
+    println!("-------------------------");
 
     enclave
         .finalize(

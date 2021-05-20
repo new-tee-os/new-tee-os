@@ -1,4 +1,4 @@
-use crate::riscv::{to_satp, PageTableEntry, RootPageTable};
+use crate::riscv::{PageTableEntry, RootPageTable};
 
 use super::{PageManager, PhysAddr, VirtAddr};
 
@@ -8,7 +8,7 @@ struct PageTable([u64; 512]);
 
 struct MockManager(Vec<PageTable>, usize);
 
-const KERNEL_BASE: usize = 0xffffffffc0000000;
+const KERNEL_BASE: usize = 0xFFFF_FFFF_C000_0000;
 
 impl PageManager for MockManager {
     fn alloc_physical_page(&mut self) -> PhysAddr {
@@ -43,10 +43,4 @@ fn it_works() {
     assert_eq!(manager.0[0].0[0x1FF], (addr >> 12 << 10) as u64 | 1);
     // leaf node
     assert_eq!(manager.0[1].0[0], (42 << 10) | 15);
-}
-
-#[test]
-fn satp_works() {
-    let satp = to_satp(PhysAddr(42 << 12));
-    assert_eq!(satp, (8 << 60) | 42);
 }

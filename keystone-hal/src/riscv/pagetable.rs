@@ -92,7 +92,6 @@ impl PageTable {
     }
 }
 
-#[allow(unused)]
 impl<M: PageManager> RootPageTable<M> {
     pub fn new(ptr: *mut (), manager: M) -> RootPageTable<M> {
         RootPageTable {
@@ -158,13 +157,7 @@ impl<M: PageManager> RootPageTable<M> {
         pt1.entry(src.vpn0()).write(pte);
     }
 
-    #[allow(unused)]
     pub fn into_manager(self) -> M {
         self.manager
     }
-}
-
-#[allow(unused)]
-pub fn to_satp(root_pt_phys: PhysAddr) -> usize {
-    (MODE_SV39 as usize) << 60 | root_pt_phys.ppn()
 }

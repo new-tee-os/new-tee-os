@@ -4,7 +4,6 @@ pub struct PhysAddr(pub usize);
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VirtAddr(pub usize);
 
-#[allow(unused)]
 impl PhysAddr {
     #[inline]
     pub fn ppn2(self) -> usize {
@@ -52,7 +51,6 @@ impl PhysAddr {
     }
 }
 
-#[allow(unused)]
 impl VirtAddr {
     #[inline]
     pub fn vpn2(self) -> usize {

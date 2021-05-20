@@ -2,7 +2,7 @@ const SBI_EXT_EXPERIMENTAL_KEYSTONE_ENCLAVE: usize = 0x08424b45;
 const SBI_CONSOLE_PUTCHAR: usize = 1;
 const SBI_SM_STOP_ENCLAVE: usize = 3004;
 const SBI_SM_EXIT_ENCLAVE: usize = 3006;
-// pub const STOP_TIMER_INTERRUPT: usize = 0;
+pub const STOP_TIMER_INTERRUPT: usize = 0;
 pub const STOP_EDGE_CALL_HOST: usize = 1;
 
 #[inline]
@@ -27,7 +27,6 @@ pub fn putchar(ch: u8) {
     }
 }
 
-#[allow(unused)]
 pub fn stop_enclave(req: usize) -> usize {
     unsafe {
         sbicall(

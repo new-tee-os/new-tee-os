@@ -1,4 +1,4 @@
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 // `asm` is used in the `sbi` module only
 #![cfg_attr(feature = "rt", feature(asm))]
 

@@ -1,7 +1,7 @@
 OUTPUT_ARCH("riscv")
 
 SECTIONS {
-    . = 0xffffffffc0000000;
+    . = 0xFFFFFFFFC0000000;
     PROVIDE(rt_base = .);
     .text : {
         *(.text.init)
@@ -26,6 +26,10 @@ SECTIONS {
     .stack : {
         . += 0x8000;
         PROVIDE(_stack_end = .);
+    }
+    .page_table : {
+        PROVIDE(rt_page_table = .);
+        . += 0x10000;
     }
 
     _end = .;

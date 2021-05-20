@@ -5,4 +5,7 @@ _start:
     la      sp, _stack_end
     la      t0, trap_entry
     csrw    stvec, t0
-    jal     rt_init
+    # call vm_init to re-initialize page tables
+    jal     vm_init
+    # start the kernel
+    jal     rt_main

@@ -10,8 +10,10 @@ mod syscall;
 mod trap;
 mod uart;
 
+mod vm;
+
 #[no_mangle]
-extern "C" fn rt_init() {
+extern "C" fn rt_main() {
     // execute U-mode program
     unsafe {
         riscv::register::sepc::write(0x400000);

@@ -12,15 +12,21 @@ struct EnclaveMemoryManager<'a> {
     enclave: &'a KeystoneDev,
     phys_base: PhysAddr,
     alloc_ptr: PhysAddr,
+    alloc_end: PhysAddr,
     memory_map: HashMap<PhysAddr, *mut ()>,
 }
 
 impl<'a> EnclaveMemoryManager<'a> {
-    pub fn new(enclave: &'a KeystoneDev, phys_base: PhysAddr) -> EnclaveMemoryManager<'a> {
+    pub fn new(
+        enclave: &'a KeystoneDev,
+        phys_base: PhysAddr,
+        alloc_end: PhysAddr,
+    ) -> EnclaveMemoryManager<'a> {
         EnclaveMemoryManager {
             enclave,
             phys_base,
             alloc_ptr: phys_base,
+            alloc_end,
             memory_map: HashMap::new(),
         }
     }
@@ -30,6 +36,10 @@ impl PageManager for EnclaveMemoryManager<'_> {
     fn alloc_physical_page(&mut self) -> PhysAddr {
         let result = self.alloc_ptr;
         self.alloc_ptr.0 += PAGE_SIZE;
+        assert!(
+            self.alloc_ptr.0 <= self.alloc_end.0,
+            "bootstrap page table overflow"
+        );
         result
     }
 
@@ -147,7 +157,11 @@ fn main() {
     // create page tables
     unsafe {
         let total_pages = kernel_mem_size >> 12;
-        let mem_mgr = EnclaveMemoryManager::new(&enclave, PhysAddr(epm_phys_base));
+        let mem_mgr = EnclaveMemoryManager::new(
+            &enclave,
+            PhysAddr(epm_phys_base),
+            PhysAddr(epm_phys_base + KERNEL_EPM_OFFSET),
+        );
         let mut root_page_table = RootPageTable::allocate_from(mem_mgr);
         for i in 0..total_pages {
             let phys = PhysAddr(kernel_phys_base + (i << 12));

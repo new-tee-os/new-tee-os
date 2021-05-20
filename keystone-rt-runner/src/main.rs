@@ -168,25 +168,6 @@ fn main() {
             let virt = VirtAddr(KERNEL_BASE + (i << 12));
             root_page_table.map_4k(virt, PageTableEntry::for_phys(phys).make_rwx());
         }
-        // map user memory
-        root_page_table.map_4k(
-            VirtAddr(USER_BASE),
-            PageTableEntry::for_phys(PhysAddr(user_base))
-                .make_user()
-                .make_rwx(),
-        );
-        // map user stack
-        root_page_table.map_4k(
-            VirtAddr(USER_BASE + PAGE_SIZE),
-            PageTableEntry::for_phys(PhysAddr(user_base + PAGE_SIZE))
-                .make_user()
-                .make_rwx(),
-        );
-        // map untrusted memory
-        root_page_table.map_4k(
-            VirtAddr(KERNEL_BASE + (total_pages << 12)),
-            PageTableEntry::for_phys(PhysAddr(utm_phys_base)).make_rwx(),
-        );
     }
 
     // kernel + user

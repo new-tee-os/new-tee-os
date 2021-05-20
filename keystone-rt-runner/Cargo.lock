@@ -39,6 +39,7 @@ version = "0.1.0"
 name = "keystone-hal"
 version = "0.1.0"
 dependencies = [
+ "keystone-cfg",
  "num_enum",
  "static_assertions",
 ]

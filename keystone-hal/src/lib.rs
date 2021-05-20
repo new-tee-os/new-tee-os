@@ -7,4 +7,4 @@ pub mod riscv;
 #[cfg(feature = "rt")]
 pub mod rt;
 #[cfg(feature = "rt")]
-pub mod sbi;
+pub use rt::{edge_con, sbi};

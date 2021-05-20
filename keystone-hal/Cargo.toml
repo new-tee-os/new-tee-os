@@ -7,6 +7,7 @@ edition = "2018"
 crate-type = ["rlib"]
 
 [dependencies]
+keystone-cfg = { path = "../keystone-cfg" }
 # no-std for num_enum
 num_enum = { version = "0.5", default-features = false }
 static_assertions = "1.1.0"

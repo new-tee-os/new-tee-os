@@ -4,9 +4,9 @@
 
 pub mod edge;
 pub mod mem;
-pub mod riscv;
 #[cfg(feature = "rt")]
 pub mod rt;
+pub mod vm;
 #[cfg(feature = "rt")]
 pub use rt::{edge_con, sbi};
 

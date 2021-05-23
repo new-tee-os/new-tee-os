@@ -5,7 +5,7 @@ mod keystone;
 use keystone::{EnclaveStatus, KeystoneDev};
 use keystone_cfg::*;
 use keystone_hal::edge::EdgeMemory;
-use keystone_hal::riscv::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
+use keystone_hal::vm::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
 
 /// The enclave page manager, which supports linear page allocation for the page table.
 struct EnclaveMemoryManager<'a> {

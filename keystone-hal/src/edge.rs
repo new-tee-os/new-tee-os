@@ -2,7 +2,7 @@
 pub struct EdgeMemory {
     pub req: u32,
     pub len: u32,
-    pub buffer: [u8; 3 << 10],
+    pub buffer: [u8; crate::cfg::EDGE_BUFFER_SIZE],
 }
 
 static_assertions::const_assert!(core::mem::size_of::<EdgeMemory>() <= 0x1000);
@@ -11,7 +11,7 @@ impl EdgeMemory {
     pub fn write_buffer(&mut self, data: &[u8]) {
         use core::convert::TryInto;
 
-        assert!(data.len() <= self.buffer.len());
+        assert!(data.len() <= crate::cfg::EDGE_BUFFER_SIZE);
         self.buffer[0..data.len()].copy_from_slice(data);
         self.len = data.len().try_into().unwrap();
     }

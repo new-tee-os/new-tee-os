@@ -13,7 +13,7 @@ unsafe fn print_buffer_once(msg: &[u8]) {
 }
 
 pub unsafe fn print_str(msg: &str) {
-    for chunk in msg.as_bytes().chunks(3 << 10) {
+    for chunk in msg.as_bytes().chunks(crate::cfg::EDGE_BUFFER_SIZE) {
         print_buffer_once(chunk);
     }
 }

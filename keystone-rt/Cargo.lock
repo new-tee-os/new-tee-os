@@ -64,6 +64,7 @@ version = "0.1.0"
 dependencies = [
  "keystone-cfg",
  "num_enum",
+ "riscv",
  "static_assertions",
 ]
 
@@ -74,8 +75,8 @@ dependencies = [
  "keystone-cfg",
  "keystone-hal",
  "kmalloc",
+ "linux-abi",
  "log",
- "phf",
  "riscv",
 ]
 
@@ -105,6 +106,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0b725207570aa16096962d0b20c79f8a543df2280bd3c903022b9b0b4d7ea68"
 dependencies = [
  "spinning_top",
+]
+
+[[package]]
+name = "linux-abi"
+version = "0.1.0"
+dependencies = [
+ "keystone-hal",
+ "log",
+ "phf",
 ]
 
 [[package]]

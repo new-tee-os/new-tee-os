@@ -10,6 +10,7 @@ crate-type = ["rlib"]
 keystone-cfg = { path = "../keystone-cfg" }
 # no-std for num_enum
 num_enum = { version = "0.5", default-features = false }
+riscv = { version = "0.6.0", features = ["inline-asm"] }
 static_assertions = "1.1.0"
 
 [features]

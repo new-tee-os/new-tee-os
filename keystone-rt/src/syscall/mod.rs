@@ -13,9 +13,10 @@ pub enum SyscallHandler {
     Syscall3(unsafe fn(usize, usize, usize) -> usize),
 }
 
+// https://elixir.bootlin.com/linux/latest/source/include/uapi/asm-generic/unistd.h
 static SYSCALL_MAP: Map<u32, SyscallHandler> = phf_map! {
-    1u32 => process::SYSCALL_EXIT,
-    4u32 => fs::SYSCALL_WRITE,
+    64u32 => fs::SYSCALL_WRITE,
+    93u32 => process::SYSCALL_EXIT,
 };
 
 pub unsafe fn handle_syscall(frame: *mut TrapFrame) {

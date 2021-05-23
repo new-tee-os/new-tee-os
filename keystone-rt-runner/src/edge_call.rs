@@ -1,7 +1,7 @@
 use keystone_hal::edge::EdgeCallReq::{self, *};
 use keystone_hal::edge::EdgeMemory;
 use keystone_hal::edge_syscall::SyscallReq;
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 
 pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
     let edge_mem = &mut *edge_mem;
@@ -24,9 +24,14 @@ pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
 
 unsafe fn handle_syscall(edge_mem: &mut EdgeMemory) {
     let req = edge_mem.read_syscall_request();
-    match req {
+    let result = match req {
         SyscallReq::Write { fd, len } => {
-            nix::unistd::write(fd as i32, &edge_mem.buffer[0..len as usize]).unwrap();
+            nix::unistd::write(fd as i32, &edge_mem.buffer[0..len as usize])
         }
-    }
+    };
+    let result: i64 = match result {
+        Ok(retval) => retval.try_into().expect("integer overflow?!"),
+        Err(err) => err.as_errno().expect("not an errno?!") as i32 as i64,
+    };
+    edge_mem.result = result;
 }

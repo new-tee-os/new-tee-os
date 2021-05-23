@@ -25,7 +25,7 @@ pub unsafe fn handle_syscall(frame: *mut TrapFrame) {
     }
 
     // write return value back to the frame
-    (*frame).a0 = result;
+    (*frame).a0 = result as usize;
     // move to the next instruction of `ecall`
     sepc::write(sepc::read() + 4);
 }

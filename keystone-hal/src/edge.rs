@@ -4,6 +4,7 @@ use crate::edge_syscall::SyscallReq;
 pub struct EdgeMemory {
     pub req: u32,
     pub len: u32,
+    pub result: i64,
     pub syscall_req: [u8; 256],
     pub buffer: [u8; crate::cfg::EDGE_BUFFER_SIZE],
 }
@@ -18,6 +19,12 @@ impl EdgeMemory {
 
     pub unsafe fn read_syscall_request(&self) -> SyscallReq {
         SyscallReq::read_from(&self.syscall_req)
+    }
+
+    pub fn read_syscall_result(&self) -> isize {
+        use core::convert::TryInto;
+
+        self.result.try_into().expect("integer overflow?!")
     }
 
     pub fn write_buffer(&mut self, data: &[u8]) {

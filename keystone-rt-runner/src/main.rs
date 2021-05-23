@@ -1,5 +1,6 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
+mod edge_call;
 mod keystone;
 
 use keystone::{EnclaveStatus, KeystoneDev};
@@ -87,27 +88,6 @@ fn copy_to_enclave(enclave: &KeystoneDev, src: &[u8], dest_offset: usize) {
         enclave
             .unmap_mem(mem, PAGE_SIZE)
             .expect("failed to unmap enclave memory");
-    }
-}
-
-unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
-    use keystone_hal::edge::EdgeCallReq::{self, *};
-    use std::convert::TryFrom;
-
-    let edge_mem = &mut *edge_mem;
-    match EdgeCallReq::try_from(edge_mem.req).unwrap_or(EdgeCallInvalid) {
-        EdgeCallPrint => {
-            print!(
-                "{}",
-                std::str::from_utf8(edge_mem.read_buffer())
-                    .expect("the enclave tries to print an invalid UTF-8 string")
-            );
-            // return 42
-            edge_mem.req = 42;
-        }
-        _ => {
-            println!("Warning: invalid edge call number, ignoring");
-        }
     }
 }
 
@@ -208,7 +188,7 @@ fn main() {
             EnclaveStatus::EdgeCallHost => {
                 //println!("Edge call requested");
                 unsafe {
-                    handle_edge_call(edge_mem);
+                    edge_call::handle_edge_call(edge_mem);
                 }
             }
             _ => panic!("Unexpected enclave status: {:?}", status),

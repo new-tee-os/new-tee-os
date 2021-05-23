@@ -1,13 +1,25 @@
+use crate::edge_syscall::SyscallReq;
+
 #[repr(C)]
 pub struct EdgeMemory {
     pub req: u32,
     pub len: u32,
+    pub syscall_req: [u8; 256],
     pub buffer: [u8; crate::cfg::EDGE_BUFFER_SIZE],
 }
 
 static_assertions::const_assert!(core::mem::size_of::<EdgeMemory>() <= 0x1000);
 
 impl EdgeMemory {
+    pub fn write_syscall_request(&mut self, req: SyscallReq) {
+        self.req = EdgeCallReq::EdgeCallSyscall.into();
+        req.write_to(&mut self.syscall_req);
+    }
+
+    pub unsafe fn read_syscall_request(&self) -> SyscallReq {
+        SyscallReq::read_from(&self.syscall_req)
+    }
+
     pub fn write_buffer(&mut self, data: &[u8]) {
         use core::convert::TryInto;
 
@@ -26,4 +38,5 @@ impl EdgeMemory {
 pub enum EdgeCallReq {
     EdgeCallInvalid,
     EdgeCallPrint,
+    EdgeCallSyscall,
 }

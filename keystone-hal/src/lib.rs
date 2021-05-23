@@ -3,6 +3,7 @@
 #![cfg_attr(feature = "rt", feature(asm))]
 
 pub mod edge;
+#[cfg(feature = "rt")]
 pub mod mem;
 #[cfg(feature = "rt")]
 pub mod rt;

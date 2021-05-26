@@ -19,11 +19,11 @@ mod vm;
 static ALLOC: LockedLinkedListHeap = unsafe { LockedLinkedListHeap::uninit() };
 
 #[no_mangle]
-extern "C" fn rt_main(free_virt: usize, free_size: usize) {
+extern "C" fn rt_main(vm_info: &vm::VmInfo) {
     // initialize modules
     klog::klog_init().expect("failed to initialize klog module");
     unsafe {
-        ALLOC.init(free_virt as *mut u8, free_size);
+        ALLOC.init(vm_info.free_virt as *mut u8, vm_info.free_size);
     }
     log::debug!("It did not crash!");
 

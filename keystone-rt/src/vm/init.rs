@@ -25,14 +25,17 @@ extern "C" {
     fn rt_page_table();
 }
 
-// according to RISC-V calling convention, the two numbers will be passed in
-// registers a0 an a1
+// according to RISC-V calling convention, pointer to this structure will be
+// passed as an implicit first argument
 #[repr(C)]
-struct FreeMem(usize, usize);
+pub struct VmInfo {
+    pub epm_base: usize,
+    pub free_virt: usize,
+    pub free_size: usize,
+}
 
 #[no_mangle]
 unsafe extern "C" fn vm_init(
-    _sbiret: usize, // return value from the SBI, usually 0
     epm_base: usize,
     epm_size: usize,
     runtime_phys: usize,
@@ -40,7 +43,7 @@ unsafe extern "C" fn vm_init(
     free_phys: usize,
     utm_phys: usize,
     utm_size: usize,
-) -> FreeMem {
+) -> VmInfo {
     // create root page table
     let phys2virt_offset = KERNEL_BASE - runtime_phys;
     let rpt_virt = rt_page_table as *const () as usize;
@@ -89,8 +92,9 @@ unsafe extern "C" fn vm_init(
     // write to satp
     satp::set(satp::Mode::Sv39, 0, rpt_phys >> 12);
 
-    FreeMem(
-        free_phys - epm_base + KERNEL_MIRROR_BASE, // virtual base address of free memory
-        epm_base + epm_size - free_phys,           // size of free memory
-    )
+    VmInfo {
+        epm_base,
+        free_virt: free_phys - epm_base + KERNEL_MIRROR_BASE,
+        free_size: epm_base + epm_size - free_phys,
+    }
 }

@@ -1,0 +1,4 @@
+/target
+Cargo.lock
+as
+riscv-hello-world

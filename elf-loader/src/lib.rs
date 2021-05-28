@@ -3,11 +3,13 @@
 
 extern crate alloc;
 
-pub mod elfloader;
+mod elf_loader;
+
+pub use crate::elf_loader::*;
 
 #[test]
 fn test1() {
-    elfloader::ElfFile::load(
+    elf_loader::ElfFile::load(
         &std::fs::read("./riscv-hello-world").unwrap(),
         |from, to| println!("{:?} -> {:#X}", from, to),
     );

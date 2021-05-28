@@ -10,6 +10,7 @@ crate-type = ["rlib"]
 rt = ["riscv"]
 
 [dependencies]
+bytes = { version = "1.0.1", default-features = false }
 keystone-cfg = { path = "../keystone-cfg" }
 # no-std for num_enum
 num_enum = { version = "0.5", default-features = false }

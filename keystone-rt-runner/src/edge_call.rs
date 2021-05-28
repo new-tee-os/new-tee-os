@@ -3,6 +3,8 @@ use keystone_hal::edge::EdgeMemory;
 use keystone_hal::edge_syscall::SyscallReq;
 use std::convert::{TryFrom, TryInto};
 
+use crate::edge_reader;
+
 pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
     let edge_mem = &mut *edge_mem;
     match EdgeCallReq::try_from(edge_mem.req).unwrap_or(EdgeCallInvalid) {
@@ -16,6 +18,24 @@ pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
             edge_mem.req = 42;
         }
         EdgeCallSyscall => handle_syscall(edge_mem),
+        EdgeCallOpen => {
+            edge_reader::edge_open(edge_mem)
+                .map_err(|e| edge_reader::on_error(&e, edge_mem))
+                .ok();
+        }
+        EdgeCallGetSize => {
+            edge_reader::edge_get_size(edge_mem)
+                .map_err(|e| edge_reader::on_error(&e, edge_mem))
+                .ok();
+        }
+        EdgeCallRead => {
+            edge_reader::edge_read(edge_mem)
+                .map_err(|e| edge_reader::on_error(&e, edge_mem))
+                .ok();
+        }
+        EdgeCallClose => {
+            edge_reader::edge_close(edge_mem);
+        }
         _ => {
             println!("Warning: invalid edge call number, ignoring");
         }

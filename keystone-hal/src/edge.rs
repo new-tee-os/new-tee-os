@@ -46,4 +46,8 @@ pub enum EdgeCallReq {
     EdgeCallInvalid,
     EdgeCallPrint,
     EdgeCallSyscall,
+    EdgeCallOpen,
+    EdgeCallRead,
+    EdgeCallGetSize,
+    EdgeCallClose,
 }

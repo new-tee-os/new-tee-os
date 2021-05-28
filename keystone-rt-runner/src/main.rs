@@ -1,6 +1,7 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
 mod edge_call;
+mod edge_reader;
 mod keystone;
 
 use keystone::{EnclaveStatus, KeystoneDev};

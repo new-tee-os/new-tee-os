@@ -24,12 +24,15 @@ fn check_elf64_riscv(head: &Header) {
     // check pass
 }
 
+pub trait MapperFn: FnMut(*const (), usize) {}
+impl<T> MapperFn for T where T: FnMut(*const (), usize) {}
+
 pub struct ElfFile {
     entry: u64,
 }
 
 impl ElfFile {
-    pub fn load(data: &[u8]) -> ElfFile {
+    pub fn load(data: &[u8], mut mapper: impl MapperFn) -> ElfFile {
         let elf = Elf::parse(data).expect("parse failed");
         check_elf64_riscv(&elf.header);
 
@@ -53,8 +56,7 @@ impl ElfFile {
                 let file_end = file_begin + (seg.p_filesz as usize);
                 mem[virt_off_begin..virt_off_end].copy_from_slice(&data[file_begin..file_end]);
 
-                //add these phy memories to the vm_area tree, and map page table
-                //create_mapping(mem as *mut [u8],seg.p_vaddr);
+                mapper(mem.as_ptr() as *const _, (seg.p_vaddr as usize) / PAGE_SIZE * PAGE_SIZE);
             }
         }
 

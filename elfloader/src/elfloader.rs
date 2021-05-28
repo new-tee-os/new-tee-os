@@ -1,7 +1,6 @@
-use goblin::elf;
-use goblin::elf::{header::*, program_header::*};
+use goblin::elf::{header::*, program_header::*, Elf};
 
-use std::alloc::{alloc, Layout};
+use alloc::alloc::{alloc, Layout};
 
 const PAGE_SIZE: usize = 0x1000;
 
@@ -31,7 +30,7 @@ pub struct ElfFile {
 
 impl ElfFile {
     pub fn load(data: &[u8]) -> ElfFile {
-        let elf = elf::Elf::parse(data).expect("parse failed");
+        let elf = Elf::parse(data).expect("parse failed");
         check_elf64_riscv(&elf.header);
 
         for seg in elf.program_headers.iter() {

@@ -1,3 +1,8 @@
+// enable no_std for !test
+#![cfg_attr(not(test), no_std)]
+
+extern crate alloc;
+
 pub mod elfloader;
 
 #[test]

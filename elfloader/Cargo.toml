@@ -4,10 +4,5 @@ version = "0.1.0"
 authors = ["zjuliangxun <m13009809900@163.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-goblin="0.4"
-riscv = "0.6.0"
-keystone-cfg = { path = "../keystone-cfg" }
-keystone-hal = { path = "../keystone-hal" }
+goblin = "0.4"

@@ -65,10 +65,6 @@ pub fn load_elf64_riscv(path: &str) {
         }
     }
 
-    let mut env: usize;
-    let mut stv: usize;
-    let mut enp: usize;
-    let mut stp: usize;
     for seg in bin.program_headers.iter() {
         if seg.p_type == PT_LOAD {
             let mem: &mut [u8];
@@ -79,13 +75,15 @@ pub fn load_elf64_riscv(path: &str) {
                 let _mem: *mut u8 =
                     alloc(Layout::from_size_align(seg.p_memsz as usize, PAGE_SIZE).unwrap());
 
-                mem = core::slice::from_raw_parts_mut(_mem, get_pages(seg.p_memsz));
+                mem = core::slice::from_raw_parts_mut(_mem, get_pages(seg.p_memsz) * PAGE_SIZE);
             }
-            stv = (seg.p_vaddr as usize) % PAGE_SIZE;
-            env = stv + (seg.p_filesz) as usize;
-            stp = (seg.p_offset as usize) % PAGE_SIZE;
-            enp = (seg.p_offset + seg.p_filesz) as usize;
-            mem[stv..env].copy_from_slice(&data[stp..enp]);
+            // the virtual address where `mem` will be placed
+            let load_addr = (seg.p_vaddr as usize) / PAGE_SIZE * PAGE_SIZE;
+            let virt_off_begin = (seg.p_vaddr as usize) - load_addr;
+            let virt_off_end = virt_off_begin + (seg.p_filesz as usize);
+            let file_begin = seg.p_offset as usize;
+            let file_end = file_begin + (seg.p_filesz as usize);
+            mem[virt_off_begin..virt_off_end].copy_from_slice(&data[file_begin..file_end]);
 
             //add these phy memories to the vm_area tree, and map page table
             //create_mapping(mem as *mut [u8],seg.p_vaddr);

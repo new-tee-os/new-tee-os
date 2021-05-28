@@ -78,6 +78,7 @@ dependencies = [
  "linux-abi",
  "log",
  "riscv",
+ "spin",
 ]
 
 [[package]]
@@ -356,6 +357,15 @@ name = "siphasher"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbce6d4507c7e4a3962091436e56e95290cb71fa302d0d270e32130b75fbff27"
+
+[[package]]
+name = "spin"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b87bbf98cb81332a56c1ee8929845836f85e8ddd693157c30d76660196014478"
+dependencies = [
+ "lock_api",
+]
 
 [[package]]
 name = "spinning_top"

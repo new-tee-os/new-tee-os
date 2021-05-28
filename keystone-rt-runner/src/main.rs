@@ -152,7 +152,7 @@ fn main() {
     }
 
     // kernel + user
-    let phys_free = kernel_phys_base + kernel_mem_size + 2 * PAGE_SIZE;
+    let phys_free = kernel_phys_base + kernel_mem_size + 1 * PAGE_SIZE;
     println!("Base: {:#X}", epm_phys_base);
     println!("Krnl: {:#X}", kernel_phys_base);
     println!("User: {:#X}", user_base);

@@ -18,8 +18,12 @@ mod vm;
 #[global_allocator]
 static ALLOC: LockedLinkedListHeap = unsafe { LockedLinkedListHeap::uninit() };
 
+static EPM_PHYS: spin::Once<usize> = spin::Once::new();
+
 #[no_mangle]
 extern "C" fn rt_main(vm_info: &vm::VmInfo) {
+    // initialize EPM_PHYS
+    EPM_PHYS.call_once(|| vm_info.epm_base);
     // initialize modules
     klog::klog_init().expect("failed to initialize klog module");
     unsafe {

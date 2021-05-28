@@ -10,3 +10,4 @@ kmalloc = { path = "../kmalloc" }
 linux-abi = { path = "../linux-abi", features = ["keystone"] }
 log = "0.4.14"
 riscv = { version = "0.6.0", features = ["inline-asm"] }
+spin = "0.9.0"

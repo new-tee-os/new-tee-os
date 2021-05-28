@@ -4,7 +4,12 @@
 
 extern crate alloc;
 
+use keystone_hal::{
+    edge_reader::EdgeReader,
+    vm::{PageTableEntry, VirtAddr},
+};
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
+use log::debug;
 
 mod entry;
 mod frame;
@@ -31,14 +36,39 @@ extern "C" fn rt_main(vm_info: &vm::VmInfo) {
     }
     log::debug!("It did not crash!");
 
+    // load U-mode program
+    let entry;
+    unsafe {
+        let edge_mem = &mut *keystone_hal::EDGE_MEM_BASE;
+        // read ELF file
+        let mut elf_file = EdgeReader::new(edge_mem, "keystone-init");
+        let mut elf_data = alloc::vec![0; elf_file.size(edge_mem)];
+        elf_file.read(edge_mem, &mut elf_data);
+        elf_file.close(edge_mem);
+
+        // load & map ELF file
+        let mem_mgr = vm::HeapPageManager::new();
+        let mut root_page_table = vm::current_root_page_table();
+        let elf = elf_loader::ElfFile::load(&elf_data, |from, to| {
+            debug!("ELF loader: mapping {:?} -> {:#X}", from, to);
+            root_page_table.map_4k(
+                VirtAddr(to),
+                PageTableEntry::for_phys(mem_mgr.virt2phys(VirtAddr::from_ptr(from)))
+                    .make_user()
+                    .make_rwx(),
+            );
+        });
+        entry = elf.entry() as usize;
+    }
+
     // execute U-mode program
     unsafe {
-        riscv::register::sepc::write(0x400000);
+        riscv::register::sepc::write(entry);
         riscv::register::sstatus::set_spp(riscv::register::sstatus::SPP::User);
         #[rustfmt::skip]
         asm!(
             "csrw sscratch, sp",
-            "li sp, 0x402000",
+            "li sp, 0x403000",
             "sret",
         );
     }

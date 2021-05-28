@@ -24,8 +24,8 @@ fn check_elf64_riscv(head: &Header) {
     // check pass
 }
 
-pub trait MapperFn: FnMut(*const (), usize) {}
-impl<T> MapperFn for T where T: FnMut(*const (), usize) {}
+pub trait MapperFn: FnMut(*const (), usize, usize) {}
+impl<T> MapperFn for T where T: FnMut(*const (), usize, usize) {}
 
 pub struct ElfFile {
     entry: u64,
@@ -56,7 +56,11 @@ impl ElfFile {
                 let file_end = file_begin + (seg.p_filesz as usize);
                 mem[virt_off_begin..virt_off_end].copy_from_slice(&data[file_begin..file_end]);
 
-                mapper(mem.as_ptr() as *const _, (seg.p_vaddr as usize) / PAGE_SIZE * PAGE_SIZE);
+                mapper(
+                    mem.as_ptr() as *const _,
+                    mem.len(),
+                    (seg.p_vaddr as usize) / PAGE_SIZE * PAGE_SIZE,
+                );
             }
         }
 

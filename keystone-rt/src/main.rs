@@ -49,14 +49,20 @@ extern "C" fn rt_main(vm_info: &vm::VmInfo) {
         // load & map ELF file
         let mem_mgr = vm::HeapPageManager::new();
         let mut root_page_table = vm::current_root_page_table();
-        let elf = elf_loader::ElfFile::load(&elf_data, |from, to| {
-            debug!("ELF loader: mapping {:?} -> {:#X}", from, to);
-            root_page_table.map_4k(
-                VirtAddr(to),
-                PageTableEntry::for_phys(mem_mgr.virt2phys(VirtAddr::from_ptr(from)))
-                    .make_user()
-                    .make_rwx(),
+        let elf = elf_loader::ElfFile::load(&elf_data, |from, size, to| {
+            debug!(
+                "ELF loader: mapping ({:?} + {:#X}) -> {:#X}",
+                from, size, to
             );
+            let from = from as usize;
+            for i in 0..(size + 0xFFF) >> 12 {
+                root_page_table.map_4k(
+                    VirtAddr(to + (i << 12)),
+                    PageTableEntry::for_phys(mem_mgr.virt2phys(VirtAddr(from + (i << 12))))
+                        .make_user()
+                        .make_rwx(),
+                );
+            }
         });
         entry = elf.entry() as usize;
     }

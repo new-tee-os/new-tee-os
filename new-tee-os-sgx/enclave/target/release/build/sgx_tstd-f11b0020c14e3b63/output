@@ -1,0 +1,1 @@
+cargo:rustc-cfg=RUST_BACKTRACE="1"

@@ -1,4 +1,0 @@
-cargo:rustc-link-search=native=../lib
-cargo:rustc-link-lib=static=Enclave_u
-cargo:rustc-link-search=native=/opt/sgxsdk/lib64
-cargo:rustc-link-lib=dylib=sgx_urts

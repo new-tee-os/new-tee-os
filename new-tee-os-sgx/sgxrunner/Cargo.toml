@@ -15,6 +15,6 @@ sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", features = ["backtrace"] }
 
 [patch.'https://github.com/apache/teaclave-sgx-sdk.git']
-sgx_types = { path = "../../../sgx_types" }
-sgx_urts = { path = "../../../sgx_urts" }
-sgx_tstd = { path = "../../../sgx_tstd" }
+sgx_types = { path = "../../sgx_types" }
+sgx_urts = { path = "../../sgx_urts" }
+sgx_tstd = { path = "../../sgx_tstd" }

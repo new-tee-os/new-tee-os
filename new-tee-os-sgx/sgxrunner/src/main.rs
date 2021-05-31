@@ -23,10 +23,10 @@ use sgx_types::*;
 use sgx_urts::SgxEnclave;
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
+const SHARED_MEM_SIZE=0x1000;
 
-extern {
-    fn say_something(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
-                     some_string: *const u8, len: usize) -> sgx_status_t;
+extern "C"{
+    fn rt_main(sharemem: *mut u8, memsz: usize) -> sgx_status_t;
 }
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
@@ -45,9 +45,7 @@ fn init_enclave() -> SgxResult<SgxEnclave> {
 
 fn main() {
     unsafe {
-        let edge_mem = libc::malloc(0x800);
-        
-        
+        let edge_mem = libc::malloc(SHARED_MEM_SIZE);
     }
     
     let enclave = match init_enclave() {
@@ -65,10 +63,7 @@ fn main() {
     let mut retval = sgx_status_t::SGX_SUCCESS;
 
     let result = unsafe {
-        say_something(enclave.geteid(),
-                      &mut retval,
-                      input_string.as_ptr() as * const u8,
-                      input_string.len())
+        rt_main(edge_mem as _, SHARED_MEM_SIZE);
     };
     match result {
         sgx_status_t::SGX_SUCCESS => {},

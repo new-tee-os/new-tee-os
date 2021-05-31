@@ -65,7 +65,7 @@ CUSTOM_COMMON_PATH := ../../common
 
 ######## EDL Settings ########
 
-Enclave_EDL_Files := enclave/Enclave_t.c enclave/Enclave_t.h sgxrunner/Enclave_u.c sgxrunner/Enclave_u.h
+Enclave_EDL_Files := sgxrt/sgxrt_t.c sgxrt/sgxrt_t.h sgxrunner/sgxrt_u.c sgxrunner/sgxrt_u.h
 
 ######## sgxrunner Settings ########
 
@@ -91,38 +91,38 @@ Crypto_Library_Name := sgx_tcrypto
 KeyExchange_Library_Name := sgx_tkey_exchange
 ProtectedFs_Library_Name := sgx_tprotected_fs
 
-RustEnclave_C_Files := $(wildcard ./enclave/*.c)
+RustEnclave_C_Files := $(wildcard ./sgxrt/*.c)
 RustEnclave_C_Objects := $(RustEnclave_C_Files:.c=.o)
-RustEnclave_Include_Paths := -I$(CUSTOM_COMMON_PATH)/inc -I$(CUSTOM_EDL_PATH) -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I$(SGX_SDK)/include/epid -I ./enclave -I./include
+RustEnclave_Include_Paths := -I$(CUSTOM_COMMON_PATH)/inc -I$(CUSTOM_EDL_PATH) -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I$(SGX_SDK)/include/epid -I ./sgxrt -I./include
 
 RustEnclave_Link_Libs := -L$(CUSTOM_LIBRARY_PATH) -lenclave
 RustEnclave_Compile_Flags := $(SGX_COMMON_CFLAGS) $(ENCLAVE_CFLAGS) $(RustEnclave_Include_Paths)
 RustEnclave_Link_Flags := -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
 	-Wl,--start-group -lsgx_tstdc -l$(Service_Library_Name) -l$(Crypto_Library_Name) $(RustEnclave_Link_Libs) -Wl,--end-group \
-	-Wl,--version-script=enclave/Enclave.lds \
+	-Wl,--version-script=sgxrt/Enclave.lds \
 	$(ENCLAVE_LDFLAGS)
 
-RustEnclave_Name := enclave/enclave.so
-Signed_RustEnclave_Name := bin/enclave.signed.so
+RustEnclave_Name := sgxrt/sgxrt.so
+Signed_Rustsgxrt_Name := bin/sgxrt.signed.so
 
 .PHONY: all
 all: $(sgxrunner_Name) $(Signed_RustEnclave_Name)
 
 ######## EDL Objects ########
 
-$(Enclave_EDL_Files): $(SGX_EDGER8R) enclave/Enclave.edl
-	$(SGX_EDGER8R) --trusted enclave/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --trusted-dir enclave
-	$(SGX_EDGER8R) --untrusted enclave/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --untrusted-dir sgxrunner
+$(Enclave_EDL_Files): $(SGX_EDGER8R) sgxrt/Enclave.edl
+	$(SGX_EDGER8R) --trusted sgxrt/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --trusted-dir sgxrt
+	$(SGX_EDGER8R) --untrusted sgxrt/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --untrusted-dir sgxrunner
 	@echo "GEN  =>  $(Enclave_EDL_Files)"
 
 ######## sgxrunner Objects ########
 
-sgxrunner/Enclave_u.o: $(Enclave_EDL_Files)
-	@$(CC) $(sgxrunner_C_Flags) -c sgxrunner/Enclave_u.c -o $@
+sgxrunner/sgxrt_u.o: $(Enclave_EDL_Files)
+	@$(CC) $(sgxrunner_C_Flags) -c sgxrunner/sgxrt_u.c -o $@
 	@echo "CC   <=  $<"
 
-$(sgxrunner_Enclave_u_Object): sgxrunner/Enclave_u.o
+$(sgxrunner_Enclave_u_Object): sgxrunner/sgxrt_u.o
 	$(AR) rcsD $@ $^
 
 $(sgxrunner_Name): $(sgxrunner_Enclave_u_Object) $(sgxrunner_SRC_Files)
@@ -133,26 +133,26 @@ $(sgxrunner_Name): $(sgxrunner_Enclave_u_Object) $(sgxrunner_SRC_Files)
 
 ######## Enclave Objects ########
 
-enclave/Enclave_t.o: $(Enclave_EDL_Files)
-	@$(CC) $(RustEnclave_Compile_Flags) -c enclave/Enclave_t.c -o $@
+sgxrt/sgxrt_t.o: $(Enclave_EDL_Files)
+	@$(CC) $(RustEnclave_Compile_Flags) -c sgxrt/sgxrt_t.c -o $@
 	@echo "CC   <=  $<"
 
-$(RustEnclave_Name): enclave enclave/Enclave_t.o
-	@$(CXX) enclave/Enclave_t.o -o $@ $(RustEnclave_Link_Flags)
+$(RustEnclave_Name): sgxrt sgxrt/sgxrt_t.o
+	@$(CXX) sgxrt/sgxrt_t.o -o $@ $(RustEnclave_Link_Flags)
 	@echo "LINK =>  $@"
 
 $(Signed_RustEnclave_Name): $(RustEnclave_Name)
 	mkdir -p bin
-	@$(SGX_ENCLAVE_SIGNER) sign -key enclave/Enclave_private.pem -enclave $(RustEnclave_Name) -out $@ -config enclave/Enclave.config.xml
+	@$(SGX_ENCLAVE_SIGNER) sign -key sgxrt/Enclave_private.pem -enclave $(RustEnclave_Name) -out $@ -config sgxrt/Enclave.config.xml
 	@echo "SIGN =>  $@"
 
-.PHONY: enclave
-enclave:
-	$(MAKE) -C ./enclave/
+.PHONY: sgxrt
+sgxrt:
+	$(MAKE) -C ./sgxrt/
 
 
 .PHONY: clean
 clean:
-	@rm -f $(sgxrunner_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* sgxrunner/*_u.* lib/*.a
-	@cd enclave && cargo clean && rm -f Cargo.lock
+	@rm -f $(sgxrunner_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) sgxrt/*_t.* sgxrunner/*_u.* lib/*.a
+	@cd sgxrt && cargo clean && rm -f Cargo.lock
 	@cd sgxrunner && cargo clean && rm -f Cargo.lock

@@ -1,5 +1,0 @@
-x86_64/getcontext.lo: \
- /home/lzh/intel-sgx/incubator-teaclave-sgx-sdk/sgx_unwind/../sgx_unwind/libunwind/src/x86_64/getcontext.S \
- /home/lzh/intel-sgx/incubator-teaclave-sgx-sdk/sgx_unwind/../sgx_unwind/libunwind/src/x86_64/ucontext_i.h
-
-/home/lzh/intel-sgx/incubator-teaclave-sgx-sdk/sgx_unwind/../sgx_unwind/libunwind/src/x86_64/ucontext_i.h:

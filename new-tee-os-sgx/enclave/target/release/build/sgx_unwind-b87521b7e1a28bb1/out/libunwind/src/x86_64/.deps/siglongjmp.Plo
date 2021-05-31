@@ -1,2 +1,0 @@
-x86_64/siglongjmp.lo: \
- /home/lzh/intel-sgx/incubator-teaclave-sgx-sdk/sgx_unwind/../sgx_unwind/libunwind/src/x86_64/siglongjmp.S

@@ -1,4 +1,4 @@
-# TEE OS
+# TEE OS 设计文档
 
 本项目的目标是实现一个面向可信执行环境（Trusted Execution Environments，简称TEEs）的OS，提供与Linux兼容的系统调用，并且支持多种不同的TEE平台 ，使得用户能够在任何TEE上运行普通的Linux应用程序，降低TEE的开发及使用门槛。
 

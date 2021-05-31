@@ -39,7 +39,7 @@ unsafe extern "C" fn vm_init(
     epm_base: usize,
     epm_size: usize,
     runtime_phys: usize,
-    user_phys: usize,
+    _user_phys: usize,
     free_phys: usize,
     utm_phys: usize,
     utm_size: usize,
@@ -56,22 +56,14 @@ unsafe extern "C" fn vm_init(
     let mut root_page_table = RootPageTable::allocate_from(mem_mgr);
 
     // map kernel code and data
-    let kernel_pages = (user_phys - runtime_phys) >> 12;
+    let kernel_pages = (free_phys - runtime_phys) >> 12;
     for i in 0..kernel_pages {
         root_page_table.map_4k(
             VirtAddr(KERNEL_BASE + (i << 12)),
             PageTableEntry::for_phys(PhysAddr(runtime_phys + (i << 12))).make_rwx(),
         );
     }
-    // map user code & stack
-    for i in 0..((free_phys - user_phys) >> 12) {
-        root_page_table.map_4k(
-            VirtAddr(USER_BASE + (i << 12)),
-            PageTableEntry::for_phys(PhysAddr(user_phys + (i << 12)))
-                .make_user()
-                .make_rwx(),
-        );
-    }
+
     // map EPM mirror
     // sadly, `epm_base` is not always aligned to 2 MB boundary, so we have to
     // use map_4k again
@@ -81,6 +73,7 @@ unsafe extern "C" fn vm_init(
             PageTableEntry::for_phys(PhysAddr(epm_base + (i << 12))).make_rwx(),
         );
     }
+
     // map untrusted memory
     for i in 0..(utm_size >> 12) {
         root_page_table.map_4k(

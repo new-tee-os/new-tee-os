@@ -109,7 +109,6 @@ fn main() {
         .init_utm(UTM_SIZE)
         .expect("failed to create untrusted memory (UTM)");
     let kernel_phys_base = epm_phys_base + KERNEL_EPM_OFFSET;
-    let user_base = kernel_phys_base + kernel_mem_size;
 
     // load kernel to the EPM
     let mut dest_offset = kernel_phys_base - epm_phys_base;
@@ -123,17 +122,6 @@ fn main() {
         }
         copy_to_enclave(&enclave, &buf, dest_offset);
         dest_offset += PAGE_SIZE;
-    }
-
-    // load user program
-    {
-        let mut user_program = File::open("user.bin").expect("failed to open user.bin");
-        let mut buf = [0; PAGE_SIZE];
-        let bytes_read = user_program
-            .read(&mut buf)
-            .expect("failed to read user.bin");
-        assert!(bytes_read <= PAGE_SIZE);
-        copy_to_enclave(&enclave, &buf, user_base - epm_phys_base);
     }
 
     // create page tables
@@ -152,11 +140,12 @@ fn main() {
         }
     }
 
-    // kernel + user
-    let phys_free = kernel_phys_base + kernel_mem_size + 1 * PAGE_SIZE;
+    let fake_user_phys_base = kernel_phys_base + kernel_mem_size;
+    let phys_free = fake_user_phys_base;
     println!("Base: {:#X}", epm_phys_base);
     println!("Krnl: {:#X}", kernel_phys_base);
-    println!("User: {:#X}", user_base);
+    println!("User: {:#X}", fake_user_phys_base);
+    println!("Free: {:#X}", phys_free);
     println!("End:  {:#X}", epm_phys_base + EPM_SIZE);
     println!("UTM:  {:#X}", utm_phys_base);
     println!("-------------------------");
@@ -164,7 +153,7 @@ fn main() {
     enclave
         .finalize(
             kernel_phys_base,
-            user_base,
+            fake_user_phys_base,
             phys_free,
             keystone::RuntimeParams {
                 runtime_entry: KERNEL_BASE,

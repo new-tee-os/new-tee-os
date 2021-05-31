@@ -8,7 +8,7 @@
 #
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing,
+# Unless required by sgxrunnerlicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
@@ -65,18 +65,18 @@ CUSTOM_COMMON_PATH := ../../common
 
 ######## EDL Settings ########
 
-Enclave_EDL_Files := enclave/Enclave_t.c enclave/Enclave_t.h app/Enclave_u.c app/Enclave_u.h
+Enclave_EDL_Files := enclave/Enclave_t.c enclave/Enclave_t.h sgxrunner/Enclave_u.c sgxrunner/Enclave_u.h
 
-######## APP Settings ########
+######## sgxrunner Settings ########
 
-App_Rust_Flags := --release
-App_SRC_Files := $(shell find app/ -type f -name '*.rs') $(shell find app/ -type f -name 'Cargo.toml')
-App_Include_Paths := -I ./app -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PATH)
-App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
+sgxrunner_Rust_Flags := --release
+sgxrunner_SRC_Files := $(shell find sgxrunner/ -type f -name '*.rs') $(shell find sgxrunner/ -type f -name 'Cargo.toml')
+sgxrunner_Include_Paths := -I ./sgxrunner -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PATH)
+sgxrunner_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(sgxrunner_Include_Paths)
 
-App_Rust_Path := ./app/target/release
-App_Enclave_u_Object :=lib/libEnclave_u.a
-App_Name := bin/app
+sgxrunner_Rust_Path := ./sgxrunner/target/release
+sgxrunner_Enclave_u_Object :=lib/libEnclave_u.a
+sgxrunner_Name := bin/sgxrunner
 
 ######## Enclave Settings ########
 
@@ -107,29 +107,29 @@ RustEnclave_Name := enclave/enclave.so
 Signed_RustEnclave_Name := bin/enclave.signed.so
 
 .PHONY: all
-all: $(App_Name) $(Signed_RustEnclave_Name)
+all: $(sgxrunner_Name) $(Signed_RustEnclave_Name)
 
 ######## EDL Objects ########
 
 $(Enclave_EDL_Files): $(SGX_EDGER8R) enclave/Enclave.edl
 	$(SGX_EDGER8R) --trusted enclave/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --trusted-dir enclave
-	$(SGX_EDGER8R) --untrusted enclave/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --untrusted-dir app
+	$(SGX_EDGER8R) --untrusted enclave/Enclave.edl --search-path $(SGX_SDK)/include --search-path $(CUSTOM_EDL_PATH) --untrusted-dir sgxrunner
 	@echo "GEN  =>  $(Enclave_EDL_Files)"
 
-######## App Objects ########
+######## sgxrunner Objects ########
 
-app/Enclave_u.o: $(Enclave_EDL_Files)
-	@$(CC) $(App_C_Flags) -c app/Enclave_u.c -o $@
+sgxrunner/Enclave_u.o: $(Enclave_EDL_Files)
+	@$(CC) $(sgxrunner_C_Flags) -c sgxrunner/Enclave_u.c -o $@
 	@echo "CC   <=  $<"
 
-$(App_Enclave_u_Object): app/Enclave_u.o
+$(sgxrunner_Enclave_u_Object): sgxrunner/Enclave_u.o
 	$(AR) rcsD $@ $^
 
-$(App_Name): $(App_Enclave_u_Object) $(App_SRC_Files)
-	@cd app && SGX_SDK=$(SGX_SDK) cargo build $(App_Rust_Flags)
+$(sgxrunner_Name): $(sgxrunner_Enclave_u_Object) $(sgxrunner_SRC_Files)
+	@cd sgxrunner && SGX_SDK=$(SGX_SDK) cargo build $(sgxrunner_Rust_Flags)
 	@echo "Cargo  =>  $@"
 	mkdir -p bin
-	cp $(App_Rust_Path)/app ./bin
+	cp $(sgxrunner_Rust_Path)/sgxrunner ./bin
 
 ######## Enclave Objects ########
 
@@ -153,6 +153,6 @@ enclave:
 
 .PHONY: clean
 clean:
-	@rm -f $(App_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* app/*_u.* lib/*.a
+	@rm -f $(sgxrunner_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* sgxrunner/*_u.* lib/*.a
 	@cd enclave && cargo clean && rm -f Cargo.lock
-	@cd app && cargo clean && rm -f Cargo.lock
+	@cd sgxrunner && cargo clean && rm -f Cargo.lock

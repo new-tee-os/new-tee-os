@@ -1,0 +1,17 @@
+[package]
+name = "linux-abi"
+version = "0.1.0"
+authors = ["zjuliangxun <m13009809900@163.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log="0.4.14"
+phf="0.8.0"
+
+[target.'cfg(not(target_env = "sgx"))'.dependencies]
+sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+
+[patch.'https://github.com/apache/teaclave-sgx-sdk.git']
+sgx_urts = { path = "../../../sgx_urts" }

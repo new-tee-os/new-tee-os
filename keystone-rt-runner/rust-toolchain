@@ -1,2 +1,0 @@
-[toolchain]
-targets = [ "riscv64gc-unknown-linux-gnu" ]

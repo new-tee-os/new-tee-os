@@ -1,4 +1,0 @@
-{
-    "rust-analyzer.cargo.target": "riscv64gc-unknown-linux-gnu",
-    "rust-analyzer.checkOnSave.allTargets": false,
-}

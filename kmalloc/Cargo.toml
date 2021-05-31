@@ -1,7 +1,0 @@
-[package]
-name = "kmalloc"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-linked_list_allocator = "0.9.0"

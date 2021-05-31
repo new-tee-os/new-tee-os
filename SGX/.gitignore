@@ -1,0 +1,11 @@
+sgxrt.so
+sgxrt_t.h
+sgxrt_t.c
+sgxrt_t.o
+./lib/*.a
+./sgxrunner/sgxrt_u.*
+./sgxrunner/target/*
+./sgxrt/target/*
+./sgxrt/*/target/*
+./bin/*.so
+

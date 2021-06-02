@@ -1,5 +1,6 @@
 pub mod edge_con;
 pub mod edge_reader;
+pub mod mem;
 pub mod sbi;
 
 use crate::edge::EdgeMemory;

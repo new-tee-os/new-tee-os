@@ -5,8 +5,6 @@
 pub mod edge;
 pub mod edge_syscall;
 #[cfg(feature = "rt")]
-pub mod mem;
-#[cfg(feature = "rt")]
 pub mod rt;
 pub mod vm;
 #[cfg(feature = "rt")]

@@ -5,7 +5,6 @@ edition = "2018"
 
 [dependencies]
 elf-loader = { path = "../elf-loader" }
-keystone-cfg = { path = "../keystone-cfg" }
 keystone-hal = { path = "../keystone-hal", features = ["rt"] }
 kmalloc = { path = "../kmalloc" }
 linux-abi = { path = "../linux-abi", features = ["keystone"] }

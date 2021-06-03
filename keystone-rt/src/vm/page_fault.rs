@@ -1,11 +1,12 @@
 use alloc::alloc::{alloc, Layout};
 
+use keystone_hal::cfg::*;
 use keystone_hal::vm::*;
 use log::debug;
 
 // SAFETY: already checked
 static ALLOC_LAYOUT_PAGE: Layout =
-    unsafe { Layout::from_size_align_unchecked(keystone_cfg::PAGE_SIZE, keystone_cfg::PAGE_SIZE) };
+    unsafe { Layout::from_size_align_unchecked(PAGE_SIZE, PAGE_SIZE) };
 
 #[derive(Clone, Copy)]
 pub struct HeapPageManager {
@@ -20,11 +21,11 @@ impl HeapPageManager {
     }
 
     pub fn phys2virt(&self, phys: PhysAddr) -> VirtAddr {
-        VirtAddr(phys.0 - self.epm_base + keystone_cfg::KERNEL_MIRROR_BASE)
+        VirtAddr(phys.0 - self.epm_base + KERNEL_MIRROR_BASE)
     }
 
     pub fn virt2phys(&self, virt: VirtAddr) -> PhysAddr {
-        PhysAddr(virt.0 - keystone_cfg::KERNEL_MIRROR_BASE + self.epm_base)
+        PhysAddr(virt.0 - KERNEL_MIRROR_BASE + self.epm_base)
     }
 }
 

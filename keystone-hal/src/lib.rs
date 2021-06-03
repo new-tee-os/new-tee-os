@@ -4,10 +4,9 @@
 
 pub use edge_lib::*;
 
+pub mod cfg;
 #[cfg(feature = "rt")]
 pub mod rt;
 pub mod vm;
 #[cfg(feature = "rt")]
 pub use rt::*;
-
-pub use keystone_cfg as cfg;

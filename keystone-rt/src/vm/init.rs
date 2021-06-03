@@ -1,4 +1,4 @@
-use keystone_cfg::*;
+use keystone_hal::cfg::*;
 use keystone_hal::vm::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
 use riscv::register::satp;
 

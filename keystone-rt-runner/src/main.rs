@@ -5,8 +5,8 @@ mod edge_file;
 mod keystone;
 
 use keystone::{EnclaveStatus, KeystoneDev};
-use keystone_cfg::*;
 use keystone_hal::{
+    cfg::*,
     vm::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr},
     EdgeMemory,
 };

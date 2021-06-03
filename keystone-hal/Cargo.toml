@@ -8,5 +8,4 @@ rt = ["riscv"]
 
 [dependencies]
 edge-lib = { path = "../edge-lib", features = ["kernel"] }
-keystone-cfg = { path = "../keystone-cfg" }
 riscv = { version = "0.6.0", features = ["inline-asm"], optional = true }

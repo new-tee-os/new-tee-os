@@ -2,6 +2,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
 
 use edge_lib::{EdgeCaller, EdgeMemory};
 
+use crate::cfg::KERNEL_UTM_BASE;
 use crate::sbi;
 
 struct KeystoneEdgeCaller(AtomicBool);
@@ -11,7 +12,7 @@ static EDGE_CALLER: KeystoneEdgeCaller = KeystoneEdgeCaller(AtomicBool::new(fals
 #[no_mangle]
 static GLOBAL_EDGE_CALLER: &'static dyn EdgeCaller = &EDGE_CALLER;
 
-const EDGE_MEM_BASE: *mut EdgeMemory = keystone_cfg::KERNEL_UTM_BASE as _;
+const EDGE_MEM_BASE: *mut EdgeMemory = KERNEL_UTM_BASE as _;
 
 impl EdgeCaller for KeystoneEdgeCaller {
     fn acquire(&self) {

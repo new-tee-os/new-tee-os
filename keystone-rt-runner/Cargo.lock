@@ -45,12 +45,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
-name = "bytes"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
-
-[[package]]
 name = "cc"
 version = "1.0.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -110,24 +104,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e4075386626662786ddb0ec9081e7c7eeb1ba31951f447ca780ef9f5d568189"
 
 [[package]]
-name = "keystone-cfg"
-version = "0.1.0"
-
-[[package]]
 name = "keystone-hal"
 version = "0.1.0"
 dependencies = [
  "edge-lib",
- "keystone-cfg",
 ]
 
 [[package]]
 name = "keystone-rt-runner"
 version = "0.1.0"
 dependencies = [
- "bytes",
  "failure",
- "keystone-cfg",
  "keystone-hal",
  "nix",
 ]

@@ -27,12 +27,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcb6dd1c2376d2e096796e234a70e17e94cc2d5d54ff8ce42b28cef1d0d359a4"
 
 [[package]]
-name = "bytes"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -47,6 +41,14 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "edge-lib"
+version = "0.1.0"
+dependencies = [
+ "num_enum",
+ "static_assertions",
 ]
 
 [[package]]
@@ -86,11 +88,9 @@ version = "0.1.0"
 name = "keystone-hal"
 version = "0.1.0"
 dependencies = [
- "bytes",
+ "edge-lib",
  "keystone-cfg",
- "num_enum",
  "riscv",
- "static_assertions",
 ]
 
 [[package]]

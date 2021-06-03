@@ -2,8 +2,8 @@
 // `asm!` is used in the `sbi` module only
 #![cfg_attr(feature = "rt", feature(asm))]
 
-pub mod edge;
-pub mod edge_syscall;
+pub use edge_lib::*;
+
 #[cfg(feature = "rt")]
 pub mod rt;
 pub mod vm;

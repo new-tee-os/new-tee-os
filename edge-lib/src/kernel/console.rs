@@ -1,28 +1,28 @@
 use core::fmt::Write;
 
-use super::{sbi, EDGE_MEM_BASE};
-use crate::edge::EdgeCallReq;
+use crate::{with_edge_caller, EdgeCallReq};
 
 pub struct EdgeConsole;
 
-unsafe fn print_buffer_once(msg: &[u8]) {
-    let edge_memory = &mut *EDGE_MEM_BASE;
-    edge_memory.req = EdgeCallReq::EdgeCallPrint.into();
-    edge_memory.write_buffer(msg);
-    sbi::stop_enclave(sbi::STOP_EDGE_CALL_HOST);
+fn print_buffer_once(msg: &[u8]) {
+    with_edge_caller(|caller| {
+        caller
+            .edge_mem()
+            .write_request(EdgeCallReq::EdgeCallPrint)
+            .write_buffer(msg);
+        unsafe { caller.edge_call() };
+    })
 }
 
-pub unsafe fn print_str(msg: &str) {
-    for chunk in msg.as_bytes().chunks(crate::cfg::EDGE_BUFFER_SIZE) {
+pub fn print_str(msg: &str) {
+    for chunk in msg.as_bytes().chunks(crate::EDGE_BUFFER_SIZE) {
         print_buffer_once(chunk);
     }
 }
 
 impl Write for EdgeConsole {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
-        unsafe {
-            print_str(s);
-        }
+        print_str(s);
         Ok(())
     }
 }
@@ -31,7 +31,7 @@ impl Write for EdgeConsole {
 macro_rules! print {
     ($($args:tt)+) => ({
         use core::fmt::Write;
-        write!($crate::edge_con::EdgeConsole, $($args)+).unwrap()
+        write!($crate::EdgeConsole, $($args)+).unwrap()
     });
 }
 

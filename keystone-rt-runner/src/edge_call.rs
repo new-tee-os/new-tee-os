@@ -1,11 +1,12 @@
-use keystone_hal::edge::EdgeCallReq::{self, *};
-use keystone_hal::edge::EdgeMemory;
-use keystone_hal::edge_syscall::SyscallReq;
 use std::convert::{TryFrom, TryInto};
 
-use crate::edge_reader;
+use keystone_hal::{EdgeCallInfo, EdgeCallReq, EdgeMemory};
+
+use crate::edge_file;
 
 pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
+    use EdgeCallReq::*;
+
     let edge_mem = &mut *edge_mem;
     match EdgeCallReq::try_from(edge_mem.req).unwrap_or(EdgeCallInvalid) {
         EdgeCallPrint => {
@@ -18,24 +19,7 @@ pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
             edge_mem.req = 42;
         }
         EdgeCallSyscall => handle_syscall(edge_mem),
-        EdgeCallOpen => {
-            edge_reader::edge_open(edge_mem)
-                .map_err(|e| edge_reader::on_error(&e, edge_mem))
-                .ok();
-        }
-        EdgeCallGetSize => {
-            edge_reader::edge_get_size(edge_mem)
-                .map_err(|e| edge_reader::on_error(&e, edge_mem))
-                .ok();
-        }
-        EdgeCallRead => {
-            edge_reader::edge_read(edge_mem)
-                .map_err(|e| edge_reader::on_error(&e, edge_mem))
-                .ok();
-        }
-        EdgeCallClose => {
-            edge_reader::edge_close(edge_mem);
-        }
+        EdgeCallFileApi => edge_file::dispatch_api_call(edge_mem),
         _ => {
             println!("Warning: invalid edge call number, ignoring");
         }
@@ -43,12 +27,13 @@ pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
 }
 
 unsafe fn handle_syscall(edge_mem: &mut EdgeMemory) {
-    let req = edge_mem.read_syscall_request();
-    let result = match req {
-        SyscallReq::Write { fd, len } => {
+    let result = match edge_mem.read_info() {
+        EdgeCallInfo::SyscallWrite { fd, len } => {
             nix::unistd::write(fd as i32, &edge_mem.buffer[0..len as usize])
         }
+        _ => panic!("unknown syscall type"),
     };
+    // wrap the result in an i64
     let result: i64 = match result {
         Ok(retval) => retval.try_into().expect("integer overflow?!"),
         Err(err) => err.as_errno().expect("not an errno?!") as i32 as i64,

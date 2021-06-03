@@ -5,8 +5,8 @@
 extern crate alloc;
 
 use keystone_hal::{
-    edge_reader::EdgeReader,
     vm::{PageTableEntry, VirtAddr},
+    EdgeFile,
 };
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
 use log::debug;
@@ -39,12 +39,11 @@ extern "C" fn rt_main(vm_info: &vm::VmInfo) {
     // load U-mode program
     let entry;
     unsafe {
-        let edge_mem = &mut *keystone_hal::EDGE_MEM_BASE;
         // read ELF file
-        let mut elf_file = EdgeReader::new(edge_mem, "keystone-init");
-        let mut elf_data = alloc::vec![0; elf_file.size(edge_mem)];
-        elf_file.read(edge_mem, &mut elf_data);
-        elf_file.close(edge_mem);
+        let mut elf_file = EdgeFile::open("keystone-init");
+        let mut elf_data = alloc::vec![0; elf_file.size()];
+        elf_file.read(&mut elf_data);
+        elf_file.close();
 
         // load & map ELF file
         let mem_mgr = vm::HeapPageManager::new();

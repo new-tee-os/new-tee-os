@@ -74,6 +74,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-lib"
+version = "0.1.0"
+dependencies = [
+ "num_enum",
+ "static_assertions",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -109,10 +117,8 @@ version = "0.1.0"
 name = "keystone-hal"
 version = "0.1.0"
 dependencies = [
- "bytes",
+ "edge-lib",
  "keystone-cfg",
- "num_enum",
- "static_assertions",
 ]
 
 [[package]]

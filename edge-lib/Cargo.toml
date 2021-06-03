@@ -1,0 +1,12 @@
+[package]
+name = "edge-lib"
+version = "0.1.0"
+edition = "2018"
+
+[features]
+kernel = []
+
+[dependencies]
+# no-std for num_enum
+num_enum = { version = "0.5", default-features = false }
+static_assertions = "1.1.0"

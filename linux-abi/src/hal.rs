@@ -1,2 +1,2 @@
 #[cfg(feature = "keystone")]
-pub use keystone_hal as hal;
+pub use keystone_hal::*;

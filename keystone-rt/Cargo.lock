@@ -79,6 +79,7 @@ dependencies = [
  "cfg-if",
  "num_enum",
  "riscv",
+ "spin",
  "static_assertions",
 ]
 

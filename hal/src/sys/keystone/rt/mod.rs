@@ -1,6 +1,8 @@
 mod edge;
 pub mod mem;
 
+pub use edge::GLOBAL_EDGE_CALLER;
+
 use crate::arch::keystone::sbi;
 
 pub fn edge_call(retval: usize) {

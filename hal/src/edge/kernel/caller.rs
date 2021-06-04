@@ -1,23 +1,19 @@
 use crate::edge::EdgeMemory;
 
-pub trait EdgeCaller: Sync {
-    fn acquire(&self);
-    fn edge_mem(&self) -> &mut EdgeMemory;
+pub trait EdgeCaller {
+    fn edge_mem(&mut self) -> &mut EdgeMemory;
     unsafe fn edge_call(&self);
-    fn release(&self);
 }
 
-extern "Rust" {
-    static GLOBAL_EDGE_CALLER: &'static dyn EdgeCaller;
+pub trait GlobalEdgeCaller<'c, C: EdgeCaller + 'c>: Sync {
+    fn acquire(&'c self) -> C;
 }
+
+use crate::sys::GLOBAL_EDGE_CALLER;
 
 pub fn with_edge_caller<F, V>(f: F) -> V
 where
-    F: FnOnce(&dyn EdgeCaller) -> V,
+    F: FnOnce(&mut dyn EdgeCaller) -> V,
 {
-    let edge_caller = unsafe { GLOBAL_EDGE_CALLER };
-    edge_caller.acquire();
-    let result = f(edge_caller);
-    edge_caller.release();
-    result
+    f(&mut GLOBAL_EDGE_CALLER.acquire())
 }

@@ -1,33 +1,28 @@
-use core::sync::atomic::{AtomicBool, Ordering};
+use spin::{Mutex, MutexGuard};
 
 use super::sbi;
 use crate::cfg::KERNEL_UTM_BASE;
-use crate::edge::{EdgeCaller, EdgeMemory};
+use crate::edge::{EdgeCaller, EdgeMemory, GlobalEdgeCaller};
 
-struct KeystoneEdgeCaller(AtomicBool);
+pub struct KsEdgeCallerHolder<'l>(MutexGuard<'l, ()>);
+pub struct KsGlobalEdgeCaller(Mutex<()>);
 
-static EDGE_CALLER: KeystoneEdgeCaller = KeystoneEdgeCaller(AtomicBool::new(false));
-
-#[no_mangle]
-static GLOBAL_EDGE_CALLER: &'static dyn EdgeCaller = &EDGE_CALLER;
+pub static GLOBAL_EDGE_CALLER: KsGlobalEdgeCaller = KsGlobalEdgeCaller(Mutex::new(()));
 
 const EDGE_MEM_BASE: *mut EdgeMemory = KERNEL_UTM_BASE as _;
 
-impl EdgeCaller for KeystoneEdgeCaller {
-    fn acquire(&self) {
-        let prev = self.0.swap(true, Ordering::Relaxed);
-        assert_eq!(prev, false, "the edge caller is not reentrant");
-    }
-
-    fn edge_mem(&self) -> &mut EdgeMemory {
+impl EdgeCaller for KsEdgeCallerHolder<'_> {
+    fn edge_mem(&mut self) -> &mut EdgeMemory {
         unsafe { &mut *EDGE_MEM_BASE }
     }
 
     unsafe fn edge_call(&self) {
         sbi::stop_enclave(sbi::STOP_EDGE_CALL_HOST);
     }
+}
 
-    fn release(&self) {
-        self.0.store(false, Ordering::Relaxed);
+impl<'l> GlobalEdgeCaller<'l, KsEdgeCallerHolder<'l>> for KsGlobalEdgeCaller {
+    fn acquire(&'l self) -> KsEdgeCallerHolder {
+        KsEdgeCallerHolder(self.0.try_lock().expect("the edge caller is not reentrant"))
     }
 }

@@ -1,6 +1,6 @@
 use core::fmt::Write;
 
-use keystone_hal::sbi;
+use hal::arch::keystone::sbi;
 
 pub struct UnsafeUart;
 

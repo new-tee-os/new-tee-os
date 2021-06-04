@@ -1,5 +1,5 @@
-use keystone_hal::cfg::*;
-use keystone_hal::vm::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr};
+use hal::arch::keystone::vm::*;
+use hal::cfg::*;
 use riscv::register::satp;
 
 struct LinearMemoryManager {

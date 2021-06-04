@@ -4,9 +4,9 @@
 
 extern crate alloc;
 
-use keystone_hal::{
-    vm::{PageTableEntry, VirtAddr},
-    EdgeFile,
+use hal::{
+    arch::keystone::vm::{PageTableEntry, VirtAddr},
+    edge::EdgeFile,
 };
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
 use log::debug;

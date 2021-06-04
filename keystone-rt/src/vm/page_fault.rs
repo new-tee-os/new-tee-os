@@ -1,7 +1,7 @@
 use alloc::alloc::{alloc, Layout};
 
-use keystone_hal::cfg::*;
-use keystone_hal::vm::*;
+use hal::arch::keystone::vm::*;
+use hal::cfg::*;
 use log::debug;
 
 // SAFETY: already checked

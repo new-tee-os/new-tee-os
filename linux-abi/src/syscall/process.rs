@@ -1,6 +1,6 @@
-use super::SyscallHandler;
-use crate::hal;
 use log::*;
+
+use super::SyscallHandler;
 
 pub const SYSCALL_EXIT: SyscallHandler = SyscallHandler::Syscall1(syscall_exit);
 

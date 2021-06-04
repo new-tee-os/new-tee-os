@@ -68,14 +68,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "edge-lib"
-version = "0.1.0"
-dependencies = [
- "num_enum",
- "static_assertions",
-]
-
-[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -104,10 +96,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e4075386626662786ddb0ec9081e7c7eeb1ba31951f447ca780ef9f5d568189"
 
 [[package]]
-name = "keystone-hal"
+name = "hal"
 version = "0.1.0"
 dependencies = [
- "edge-lib",
+ "cfg-if",
+ "num_enum",
+ "static_assertions",
 ]
 
 [[package]]
@@ -115,7 +109,7 @@ name = "keystone-rt-runner"
 version = "0.1.0"
 dependencies = [
  "failure",
- "keystone-hal",
+ "hal",
  "nix",
 ]
 

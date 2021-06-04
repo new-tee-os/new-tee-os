@@ -1,10 +1,10 @@
 use std::{fs::File, mem::ManuallyDrop};
 
 use failure::ResultExt;
-use keystone_hal::EdgeMemory;
+use hal::edge::EdgeMemory;
 
 pub fn dispatch_api_call(edge_mem: &mut EdgeMemory) {
-    use keystone_hal::EdgeCallInfo::*;
+    use hal::edge::EdgeCallInfo::*;
 
     let result = match edge_mem.read_info() {
         FileOpen => edge_open(edge_mem).map(|file_obj| {

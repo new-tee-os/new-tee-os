@@ -44,14 +44,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "edge-lib"
-version = "0.1.0"
-dependencies = [
- "num_enum",
- "static_assertions",
-]
-
-[[package]]
 name = "elf-loader"
 version = "0.1.0"
 dependencies = [
@@ -81,11 +73,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "keystone-hal"
+name = "hal"
 version = "0.1.0"
 dependencies = [
- "edge-lib",
+ "cfg-if",
+ "num_enum",
  "riscv",
+ "static_assertions",
 ]
 
 [[package]]
@@ -93,7 +87,7 @@ name = "keystone-rt"
 version = "0.1.0"
 dependencies = [
  "elf-loader",
- "keystone-hal",
+ "hal",
  "kmalloc",
  "linux-abi",
  "log",
@@ -133,7 +127,7 @@ dependencies = [
 name = "linux-abi"
 version = "0.1.0"
 dependencies = [
- "keystone-hal",
+ "hal",
  "log",
  "phf",
 ]

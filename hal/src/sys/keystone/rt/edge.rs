@@ -1,9 +1,8 @@
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use edge_lib::{EdgeCaller, EdgeMemory};
-
+use super::sbi;
 use crate::cfg::KERNEL_UTM_BASE;
-use crate::sbi;
+use crate::edge::{EdgeCaller, EdgeMemory};
 
 struct KeystoneEdgeCaller(AtomicBool);
 

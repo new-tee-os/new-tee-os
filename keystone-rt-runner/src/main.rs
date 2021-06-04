@@ -4,12 +4,12 @@ mod edge_call;
 mod edge_file;
 mod keystone;
 
-use keystone::{EnclaveStatus, KeystoneDev};
-use keystone_hal::{
+use hal::{
+    arch::keystone::vm::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr},
     cfg::*,
-    vm::{PageManager, PageTableEntry, PhysAddr, RootPageTable, VirtAddr},
-    EdgeMemory,
+    edge::EdgeMemory,
 };
+use keystone::{EnclaveStatus, KeystoneDev};
 
 /// The enclave page manager, which supports linear page allocation for the page table.
 struct EnclaveMemoryManager<'a> {

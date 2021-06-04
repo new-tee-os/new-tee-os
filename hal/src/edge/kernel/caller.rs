@@ -1,4 +1,4 @@
-use crate::EdgeMemory;
+use crate::edge::EdgeMemory;
 
 pub trait EdgeCaller: Sync {
     fn acquire(&self);

@@ -1,5 +1,3 @@
-#![no_std]
-
 mod edge;
 mod info;
 #[cfg(feature = "kernel")]

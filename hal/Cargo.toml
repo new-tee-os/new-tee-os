@@ -1,12 +1,17 @@
 [package]
-name = "edge-lib"
+name = "hal"
 version = "0.1.0"
 edition = "2018"
 
 [features]
 kernel = []
+# Keystone part
+keystone = []
+keystone-rt = ["kernel", "keystone", "riscv"]
 
 [dependencies]
+cfg-if = "1.0.0"
 # no-std for num_enum
 num_enum = { version = "0.5", default-features = false }
+riscv = { version = "0.6.0", features = ["inline-asm"], optional = true }
 static_assertions = "1.1.0"

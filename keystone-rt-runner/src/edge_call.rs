@@ -1,6 +1,6 @@
 use std::convert::{TryFrom, TryInto};
 
-use keystone_hal::{EdgeCallInfo, EdgeCallReq, EdgeMemory};
+use hal::edge::{EdgeCallInfo, EdgeCallReq, EdgeMemory};
 
 use crate::edge_file;
 

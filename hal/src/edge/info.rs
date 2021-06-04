@@ -11,7 +11,7 @@ pub enum EdgeCallInfo {
 
 const STRUCT_LEN: usize = core::mem::size_of::<EdgeCallInfo>();
 
-static_assertions::const_assert!(STRUCT_LEN <= crate::EDGE_CALL_INFO_SIZE);
+static_assertions::const_assert!(STRUCT_LEN <= super::EDGE_CALL_INFO_SIZE);
 
 // note: maybe unsafe, since these functions operate on the
 // underlying binary representation of the object

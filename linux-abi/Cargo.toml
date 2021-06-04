@@ -5,10 +5,10 @@ edition = "2018"
 
 [features]
 default = ["keystone"]
-keystone = ["keystone-hal"]
+keystone = ["hal/keystone-rt"]
 
 [dependencies]
-keystone-hal = { path = "../keystone-hal", features = ["rt"], optional = true }
+hal = { path = "../hal" }
 log = "0.4.14"
 
 # enable no-std in phf

@@ -1,6 +1,6 @@
 use core::fmt::Write;
 
-use crate::{with_edge_caller, EdgeCallReq};
+use crate::edge::{with_edge_caller, EdgeCallReq};
 
 pub struct EdgeConsole;
 
@@ -15,7 +15,7 @@ fn print_buffer_once(msg: &[u8]) {
 }
 
 pub fn print_str(msg: &str) {
-    for chunk in msg.as_bytes().chunks(crate::EDGE_BUFFER_SIZE) {
+    for chunk in msg.as_bytes().chunks(crate::edge::EDGE_BUFFER_SIZE) {
         print_buffer_once(chunk);
     }
 }
@@ -31,7 +31,7 @@ impl Write for EdgeConsole {
 macro_rules! print {
     ($($args:tt)+) => ({
         use core::fmt::Write;
-        write!($crate::EdgeConsole, $($args)+).unwrap()
+        write!($crate::edge::EdgeConsole, $($args)+).unwrap()
     });
 }
 

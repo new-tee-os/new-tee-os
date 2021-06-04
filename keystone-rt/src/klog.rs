@@ -1,4 +1,4 @@
-use keystone_hal::println;
+use hal::println;
 use log::{LevelFilter, Log, SetLoggerError};
 
 struct ConsoleLogger;

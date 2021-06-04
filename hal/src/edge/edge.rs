@@ -1,6 +1,6 @@
 use core::convert::TryFrom;
 
-use crate::EdgeCallInfo;
+use super::EdgeCallInfo;
 
 pub const EDGE_BUFFER_SIZE: usize = 3 << 10;
 pub const EDGE_CALL_INFO_SIZE: usize = 256;

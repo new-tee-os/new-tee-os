@@ -1,4 +1,4 @@
-use crate::{with_edge_caller, EdgeCallInfo, EdgeCallReq, EDGE_BUFFER_SIZE};
+use crate::edge::{with_edge_caller, EdgeCallInfo, EdgeCallReq, EDGE_BUFFER_SIZE};
 
 pub struct EdgeFile {
     file_obj: u64,

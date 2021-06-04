@@ -39,18 +39,20 @@ impl EdgeFile {
     }
 
     fn read_once(&mut self, dest: &mut [u8]) -> usize {
+        assert!(dest.len() <= EDGE_BUFFER_SIZE);
         with_edge_caller(|caller| {
             let edge_mem = caller.edge_mem();
             edge_mem
                 .write_request(EdgeCallReq::EdgeCallFileApi)
                 .write_info(EdgeCallInfo::FileRead {
                     file_obj: self.file_obj,
+                    len: dest.len() as u32,
                 });
             unsafe { caller.edge_call() };
 
             let edge_mem = caller.edge_mem();
             assert_eq!(edge_mem.req, 0, "failed to read edge file");
-            (&mut dest[0..edge_mem.buf_len as usize]).copy_from_slice(edge_mem.read_buffer());
+            dest[0..edge_mem.buf_len as usize].copy_from_slice(edge_mem.read_buffer());
             edge_mem.buf_len as usize
         })
     }
@@ -67,6 +69,22 @@ impl EdgeFile {
         }
         bytes_read += self.read_once(dest);
         bytes_read
+    }
+
+    pub fn seek(&mut self, pos: u64) {
+        with_edge_caller(|caller| {
+            let edge_mem = caller.edge_mem();
+            edge_mem
+                .write_request(EdgeCallReq::EdgeCallFileApi)
+                .write_info(EdgeCallInfo::FileSeek {
+                    file_obj: self.file_obj,
+                    pos,
+                });
+            unsafe { caller.edge_call() };
+
+            let edge_mem = caller.edge_mem();
+            assert_eq!(edge_mem.req, 0, "failed to seek edge file");
+        });
     }
 
     pub fn close(self) {

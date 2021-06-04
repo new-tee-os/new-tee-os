@@ -13,7 +13,8 @@ pub fn dispatch_api_call(edge_mem: &mut EdgeMemory) {
         FileGetSize { file_obj } => edge_get_size(file_obj).map(|size| {
             edge_mem.write_info(U64Info(size));
         }),
-        FileRead { file_obj } => edge_read(file_obj, &mut edge_mem.buffer)
+        FileSeek { file_obj, pos } => edge_seek(file_obj, pos),
+        FileRead { file_obj, len } => edge_read(file_obj, &mut edge_mem.buffer[0..len as usize])
             .map(|bytes_read| edge_mem.buf_len = bytes_read),
         FileClose { file_obj } => Ok(edge_close(file_obj)),
         _ => panic!("invalid edge file API call"),
@@ -49,6 +50,16 @@ pub fn edge_get_size(file_obj: u64) -> Result<u64, failure::Error> {
         .context("failed to stat edge file")?
         .len();
     Ok(file_len)
+}
+
+pub fn edge_seek(file_obj: u64, pos: u64) -> Result<(), failure::Error> {
+    use std::io::{Seek, SeekFrom};
+    let mut boxed_file = edge_get_file(file_obj);
+    boxed_file
+        .seek(SeekFrom::Start(pos))
+        .map(|_| ()) // TODO: do something with the return value
+        .context("failed to seek edge file")?;
+    Ok(())
 }
 
 pub fn edge_read(file_obj: u64, buf: &mut [u8]) -> Result<u32, failure::Error> {

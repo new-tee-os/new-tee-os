@@ -3,8 +3,9 @@
 pub enum EdgeCallInfo {
     SyscallWrite { fd: u64, len: u64 },
     FileOpen,
-    FileRead { file_obj: u64 },
+    FileRead { file_obj: u64, len: u32 },
     FileGetSize { file_obj: u64 },
+    FileSeek { file_obj: u64, pos: u64 },
     FileClose { file_obj: u64 },
     U64Info(u64),
 }

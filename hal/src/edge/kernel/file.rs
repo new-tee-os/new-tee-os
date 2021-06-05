@@ -87,7 +87,7 @@ impl EdgeFile {
         });
     }
 
-    pub fn close(self) {
+    fn close_remote_file(&self) {
         with_edge_caller(|caller| {
             let edge_mem = caller.edge_mem();
             edge_mem
@@ -97,5 +97,15 @@ impl EdgeFile {
                 });
             unsafe { caller.edge_call() };
         });
+    }
+
+    pub fn close(self) {
+        self.close_remote_file();
+    }
+}
+
+impl Drop for EdgeFile {
+    fn drop(&mut self) {
+        self.close_remote_file();
     }
 }

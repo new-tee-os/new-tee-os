@@ -14,6 +14,10 @@ pub trait EdgeCaller {
 /// The global edge caller trait, which provides access to the actual `EdgeCaller`.
 ///
 /// This object guarantees that edge calls are not concurrent by using a mutex.
+///
+/// The lifetime parameter `'c` indicates that all access to the edge memory
+/// will only be granted within `'c`, because when the edge caller goes out of scope,
+/// the mutex will be unlocked and all access to the edge caller will be revoked.
 pub trait GlobalEdgeCaller<'c, C: EdgeCaller + 'c>: Sync {
     fn acquire(&'c self) -> C;
 }

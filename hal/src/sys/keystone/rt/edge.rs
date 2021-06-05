@@ -22,6 +22,10 @@ pub struct KsGlobalEdgeCaller(Mutex<()>);
 /// When this object gets dropped, the mutex will be unlocked, thus
 /// allowing others to acquire the edge caller again.
 ///
+/// The lifetime parameter `'l` indicates that all access to the edge memory
+/// will only be granted within `'l`, because after that, the mutex will be
+/// unlocked and all access to the edge caller will be revoked.
+///
 /// This struct must be marked public (in order to compile successfully).
 pub struct KsEdgeCallerHolder<'l>(MutexGuard<'l, ()>);
 

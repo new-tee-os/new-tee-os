@@ -11,3 +11,10 @@ linux-abi = { path = "../linux-abi", features = ["keystone"] }
 log = "0.4.14"
 riscv = { version = "0.6.0", features = ["inline-asm"] }
 spin = "0.9.0"
+
+# enable no-std in phf
+[dependencies.phf]
+git = "https://github.com/Kazurin-775/rust-phf.git"
+rev = "171f1f59"
+default-features = false
+features = ["macros"]

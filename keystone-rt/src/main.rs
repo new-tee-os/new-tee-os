@@ -11,6 +11,7 @@ use hal::{
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
 use log::debug;
 
+mod elf;
 mod entry;
 mod frame;
 mod klog;
@@ -39,16 +40,13 @@ extern "C" fn rt_main(vm_info: &vm::VmInfo) {
     // load U-mode program
     let entry;
     unsafe {
-        // read ELF file
-        let mut elf_file = EdgeFile::open("keystone-init");
-        let mut elf_data = alloc::vec![0; elf_file.size()];
-        elf_file.read(&mut elf_data);
-        elf_file.close();
+        // open ELF file
+        let mut elf_file = elf::EdgeElfFile(EdgeFile::open("keystone-init"));
 
         // load & map ELF file
         let mem_mgr = vm::HeapPageManager::new();
         let mut root_page_table = vm::current_root_page_table();
-        let elf = elf_loader::ElfFile::load(&elf_data, |from, size, to| {
+        let elf = elf_loader::ElfFile::load(&mut elf_file, |from, size, to| {
             debug!(
                 "ELF loader: mapping ({:?} + {:#X}) -> {:#X}",
                 from, size, to

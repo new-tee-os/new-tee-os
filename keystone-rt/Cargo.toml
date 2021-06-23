@@ -10,11 +10,10 @@ kmalloc = { path = "../kmalloc" }
 linux-abi = { path = "../linux-abi", features = ["keystone"] }
 log = "0.4.14"
 riscv = { version = "0.6.0", features = ["inline-asm"] }
-spin = "0.9.0"
+spin = "0.9.1"
 
 # enable no-std in phf
 [dependencies.phf]
-git = "https://github.com/Kazurin-775/rust-phf.git"
-rev = "171f1f59"
+version = "0.9.0"
 default-features = false
 features = ["macros"]

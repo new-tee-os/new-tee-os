@@ -6,4 +6,4 @@ edition = "2018"
 [dependencies]
 failure = "0.1.8"
 hal = { path = "../hal", features = ["keystone"] }
-nix = "0.20.0"
+nix = "0.21.0"

@@ -1,0 +1,9 @@
+#!/bin/sh
+"$HOME/keystone/qemu/riscv64-softmmu/qemu-system-riscv64" -m 2G -nographic \
+    -machine virt -bios "$HOME/keystone/build/bootrom.build/bootrom.bin" \
+    -kernel "$HOME/keystone/build/sm.build/platform/generic/firmware/fw_payload.elf" \
+    -append 'console=ttyS0 ro root=/dev/vda' \
+    -drive file="$HOME/keystone/build/buildroot.build/images/rootfs.ext2",format=raw,id=hd0 \
+    -device 'virtio-blk-device,drive=hd0' \
+    -netdev 'user,id=net0,net=192.168.100.1/24,dhcpstart=192.168.100.128,hostfwd=tcp::8022-:22' \
+    -device 'virtio-net-device,netdev=net0' -device 'virtio-rng-pci' -smp 1

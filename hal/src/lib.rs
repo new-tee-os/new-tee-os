@@ -21,6 +21,3 @@ pub use kernel::*;
 
 // expose platform-specific configuration items
 pub use sys::cfg;
-
-#[cfg(feature = "kernel")]
-pub use sys::{edge_call, exit_enclave};

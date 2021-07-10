@@ -1,3 +1,4 @@
+// dispatch to architecture's implementation
 cfg_if::cfg_if! {
     if #[cfg(feature = "keystone")] {
         mod keystone;

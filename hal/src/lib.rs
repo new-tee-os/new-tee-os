@@ -1,13 +1,26 @@
 #![cfg_attr(not(test), no_std)]
-// `asm!` is used in the `sbi` module only
-#![cfg_attr(feature = "keystone-rt", feature(asm))]
+#![feature(asm, const_btree_new, global_asm)]
 
+extern crate alloc;
+
+/// Architecture-specific APIs.
 pub mod arch;
+
+/// Edge call APIs.
 pub mod edge;
-#[cfg(feature = "kernel")]
-pub mod mem;
+
+/// Architecture-specific data structures and implementations.
+/// Private to this crate.
 mod sys;
 
+#[cfg(feature = "kernel")]
+/// Kernel mode specific items (e.g. `copy_from_user`).
+mod kernel;
+#[cfg(feature = "kernel")]
+pub use kernel::*;
+
+// expose platform-specific configuration items
 pub use sys::cfg;
+
 #[cfg(feature = "kernel")]
 pub use sys::{edge_call, exit_enclave};

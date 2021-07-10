@@ -2,7 +2,7 @@ use spin::{Mutex, MutexGuard};
 
 use super::sbi;
 use crate::cfg::KERNEL_UTM_BASE;
-use crate::edge::{EdgeCaller, EdgeMemory, GlobalEdgeCaller};
+use crate::edge::{EdgeCallerHolder, EdgeMemory, GlobalEdgeCaller};
 
 /// The Keystone global edge caller, which provides access to `KsEdgeCallerHolder`
 /// and prevents concurrent edge calls by using a mutex.
@@ -35,7 +35,7 @@ pub static GLOBAL_EDGE_CALLER: KsGlobalEdgeCaller = KsGlobalEdgeCaller(Mutex::ne
 
 const EDGE_MEM_BASE: *mut EdgeMemory = KERNEL_UTM_BASE as _;
 
-impl EdgeCaller for KsEdgeCallerHolder<'_> {
+impl EdgeCallerHolder for KsEdgeCallerHolder<'_> {
     fn edge_mem(&mut self) -> &mut EdgeMemory {
         unsafe { &mut *EDGE_MEM_BASE }
     }

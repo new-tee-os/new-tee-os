@@ -1,5 +1,5 @@
 #![cfg_attr(not(test), no_std)]
-#![feature(asm, const_btree_new, global_asm)]
+#![feature(asm, const_btree_new, global_asm, map_first_last)]
 
 extern crate alloc;
 

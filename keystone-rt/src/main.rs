@@ -4,12 +4,14 @@
 
 extern crate alloc;
 
+use alloc::sync::Arc;
 use hal::{
     arch::keystone::vm::{PageTableEntry, VirtAddr},
     edge::EdgeFile,
 };
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
 use log::debug;
+use spin::Mutex;
 
 mod elf;
 mod entry;
@@ -27,7 +29,7 @@ static ALLOC: LockedLinkedListHeap = unsafe { LockedLinkedListHeap::uninit() };
 static EPM_PHYS: spin::Once<usize> = spin::Once::new();
 
 #[no_mangle]
-extern "C" fn rt_main(vm_info: &vm::VmInfo) {
+extern "C" fn rt_main(vm_info: &vm::VmInfo) -> ! {
     // initialize EPM_PHYS
     EPM_PHYS.call_once(|| vm_info.epm_base);
     // initialize modules
@@ -64,15 +66,16 @@ extern "C" fn rt_main(vm_info: &vm::VmInfo) {
         entry = elf.entry() as usize;
     }
 
+    let task = hal::task::Task::create(0x403000);
+    let task_global = Arc::new(Mutex::new(task));
+    let task_future = hal::task::TaskFuture::new(task_global.clone());
+
     // execute U-mode program
     unsafe {
         riscv::register::sepc::write(entry);
         riscv::register::sstatus::set_spp(riscv::register::sstatus::SPP::User);
-        #[rustfmt::skip]
-        asm!(
-            "csrw sscratch, sp",
-            "li sp, 0x403000",
-            "sret",
-        );
     }
+    executor::spawn(task_future);
+    executor::run_until_idle();
+    unreachable!()
 }

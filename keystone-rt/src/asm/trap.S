@@ -5,17 +5,29 @@
     .macro LOAD reg, offset
         ld  \reg, \offset * REGBYTES(sp)
     .endm
+    .macro TPSTORE reg, offset
+        sd  \reg, \offset * REGBYTES(tp)
+    .endm
+    .macro TPLOAD reg, offset
+        ld  \reg, \offset * REGBYTES(tp)
+        sd  zero, \offset * REGBYTES(tp)
+    .endm
 
     .text
     .global trap_entry
 
 trap_entry:
-    # save user sp and load kernel sp
-    csrrw   sp, sscratch, sp
-    bnez    sp, 1f
-    # double fault occurred, keep sp unchanged
-    csrrw   sp, sscratch, zero
+    # save user tp and load kernel tp
+    csrrw   tp, sscratch, tp
+    bnez    tp, 1f
+    # double fault occurred, keep tp and sp unchanged
+    csrrw   tp, sscratch, zero
+    j       2f
 1:
+    # switch user sp and kernel sp
+    TPSTORE sp, 0
+    TPLOAD  sp, 1
+2:
     # save context
     addi    sp, sp, -16 * REGBYTES
     STORE   ra, 0
@@ -58,6 +70,9 @@ trap_entry:
     LOAD    a7, 15
     addi    sp, sp, 16 * REGBYTES
 
-    # save kernel sp and load user sp
-    csrrw   sp, sscratch, sp
+    # switch user sp and kernel sp
+    TPSTORE sp, 1
+    TPLOAD  sp, 0
+    # save kernel tp and load user tp
+    csrrw   tp, sscratch, tp
     sret

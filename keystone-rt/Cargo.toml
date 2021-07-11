@@ -5,6 +5,7 @@ edition = "2018"
 
 [dependencies]
 elf-loader = { path = "../elf-loader" }
+executor = { git = "https://github.com/rcore-os/executor.git", rev = "04b6b7b" }
 hal = { path = "../hal", features = ["keystone-rt"] }
 kmalloc = { path = "../kmalloc" }
 linux-abi = { path = "../linux-abi", features = ["keystone"] }

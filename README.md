@@ -153,6 +153,23 @@ Enclave exited with status 0
 3. 将 `new-tee-os-sgx` 拷贝到目录 `incubator-teaclave-sgx-sdk/samplecode` 下，然后 `make` 编译。
 4. 在 `bin` 目录下就会有可执行文件 `app`。
 
+### x86 VM on QEMU
+
+在执行前，您的系统上首先应安装有 `qemu-system-x86_64`。执行以下命令编译 QEMU VMM 后端，并安装到 Cargo 安装目录：
+
+```sh
+cargo install --path=x86-vmm-qemu
+```
+
+执行后，`x86-vmm-qemu` 将被安装到 PATH 中。然后，执行以下命令启动系统内核：
+
+```sh
+cd x86-vm-kernel
+cargo run
+```
+
+Cargo 将自动调用 `x86-vmm-qemu` 打包引导镜像文件并启动 QEMU。
+
 ## 其他困难及解决方法
 
 ### RISC-V Keystone

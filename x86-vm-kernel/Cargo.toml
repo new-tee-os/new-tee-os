@@ -1,0 +1,8 @@
+[package]
+name = "x86-vm-kernel"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+bootloader = "0.10.6"
+x86_64 = "0.14.3"

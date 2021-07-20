@@ -1,0 +1,8 @@
+[package]
+name = "x86-vmm-qemu"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+bootloader-locator = "0.0.4"
+locate-cargo-manifest = "0.2.2"

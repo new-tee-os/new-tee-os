@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod com;
 mod panic;
 
 use bootloader::{entry_point, BootInfo};
@@ -10,7 +11,18 @@ entry_point!(start_kernel);
 
 fn clear_screen(boot_info: &'static mut BootInfo) {
     let vga_buffer = boot_info.framebuffer.as_mut().unwrap().buffer_mut();
-    let pattern = b"\x00\xDD\x00";
+    // display a grid pattern if the serial is properly initialized
+    let pattern = if unsafe { com::serial_init() } {
+        b"\x00\xDD\x00"
+    } else {
+        b"\x00\x00\x00"
+    };
+
+    for &ch in b"Hello, world!\r\n".iter() {
+        unsafe {
+            com::serial_write(ch);
+        }
+    }
 
     for (i, byte) in vga_buffer.iter_mut().enumerate() {
         *byte = pattern[i % 3];

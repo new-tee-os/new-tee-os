@@ -60,9 +60,15 @@ async fn main() {
     // run QEMU
     log::info!("Starting QEMU");
     let mut run_cmd = Command::new("qemu-system-x86_64");
+    // attach boot drive
     run_cmd
         .arg("-drive")
         .arg(format!("format=raw,file={}", disk_img.display()));
+    // attach edge call serial device
+    run_cmd
+        .arg("-chardev")
+        .arg("socket,path=edge.sock,id=tee-edge");
+    run_cmd.arg("-device").arg("isa-serial,chardev=tee-edge");
 
     tokio::select! {
         result = edge_call_server.listen() => {

@@ -1,9 +1,10 @@
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-};
+mod edge_call;
 
-pub fn create_disk_images(kernel_binary_path: &Path) -> PathBuf {
+use std::path::{Path, PathBuf};
+
+use async_std::process::Command;
+
+pub async fn create_disk_images(kernel_binary_path: &Path) -> PathBuf {
     let bootloader_manifest_path = bootloader_locator::locate_bootloader("bootloader").unwrap();
     let kernel_manifest_path = locate_cargo_manifest::locate_manifest().unwrap();
 
@@ -22,7 +23,7 @@ pub fn create_disk_images(kernel_binary_path: &Path) -> PathBuf {
         .arg(kernel_binary_path.parent().unwrap());
     build_cmd.arg("--firmware").arg("bios");
 
-    if !build_cmd.status().unwrap().success() {
+    if !build_cmd.status().await.unwrap().success() {
         panic!("build failed");
     }
 
@@ -38,7 +39,8 @@ pub fn create_disk_images(kernel_binary_path: &Path) -> PathBuf {
     disk_image
 }
 
-fn main() {
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
         .init();
@@ -50,7 +52,10 @@ fn main() {
         let path = PathBuf::from(args.next().unwrap());
         path.canonicalize().unwrap()
     };
-    let disk_img = create_disk_images(&kernel_binary_path);
+    let disk_img = create_disk_images(&kernel_binary_path).await;
+
+    // start edge call server
+    let edge_call_server = edge_call::EdgeCallServer::new().await.unwrap();
 
     // run QEMU
     log::info!("Starting QEMU");
@@ -59,10 +64,19 @@ fn main() {
         .arg("-drive")
         .arg(format!("format=raw,file={}", disk_img.display()));
 
-    // check exit status
-    let exit_status = run_cmd.status().unwrap();
-    if !exit_status.success() {
-        log::warn!("QEMU exited with status {}", exit_status);
-        std::process::exit(exit_status.code().unwrap_or(1));
+    tokio::select! {
+        result = edge_call_server.listen() => {
+            result.unwrap();
+            log::info!("Edge call server closed, shutting down QEMU");
+        }
+        exit_status = run_cmd.status() => {
+            let exit_status = exit_status.unwrap();
+            if !exit_status.success() {
+                log::warn!("QEMU exited with status {}", exit_status);
+                std::process::exit(exit_status.code().unwrap_or(1));
+            } else {
+                log::info!("QEMU has shut down, closing edge call server");
+            }
+        }
     }
 }

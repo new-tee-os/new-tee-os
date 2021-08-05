@@ -8,6 +8,9 @@ kernel = ["spin"]
 # Keystone part
 keystone = []
 keystone-rt = ["kernel", "keystone", "riscv"]
+# x86 VM part
+x86-vm = []
+x86-vm-kernel = ["kernel", "x86-vm"]
 
 [dependencies]
 cfg-if = "1.0.0"

@@ -39,9 +39,13 @@ pub fn create_disk_images(kernel_binary_path: &Path) -> PathBuf {
 }
 
 fn main() {
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
+        .init();
     let mut args = std::env::args().skip(1); // skip executable name
 
     // build BIOS boot image
+    log::info!("Building BIOS boot image");
     let kernel_binary_path = {
         let path = PathBuf::from(args.next().unwrap());
         path.canonicalize().unwrap()
@@ -49,6 +53,7 @@ fn main() {
     let disk_img = create_disk_images(&kernel_binary_path);
 
     // run QEMU
+    log::info!("Starting QEMU");
     let mut run_cmd = Command::new("qemu-system-x86_64");
     run_cmd
         .arg("-drive")
@@ -57,6 +62,7 @@ fn main() {
     // check exit status
     let exit_status = run_cmd.status().unwrap();
     if !exit_status.success() {
+        log::warn!("QEMU exited with status {}", exit_status);
         std::process::exit(exit_status.code().unwrap_or(1));
     }
 }

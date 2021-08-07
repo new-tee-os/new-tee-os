@@ -28,3 +28,24 @@ lazy_static! {
     pub static ref SERIAL_DBG: Mutex<SerialPort> = new_mutex_serial(0x3F8);
     pub static ref SERIAL_EDGE: Mutex<SerialPort> = new_mutex_serial(0x2F8);
 }
+
+#[macro_export]
+macro_rules! dbg_print {
+    ($($args:tt)+) => ({
+        use core::fmt::Write;
+        write!($crate::qemu::SERIAL_DBG.lock(), $($args)+).unwrap()
+    });
+}
+
+#[macro_export]
+macro_rules! dbg_println {
+    () => ({
+        $crate::dbg_print!("\n")
+    });
+    ($fmt:expr) => ({
+        $crate::dbg_print!(concat!($fmt, "\n"))
+    });
+    ($fmt:expr, $($args:tt)+) => ({
+        $crate::dbg_print!(concat!($fmt, "\n"), $($args)+)
+    });
+}

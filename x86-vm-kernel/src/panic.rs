@@ -1,9 +1,16 @@
 use x86_64::instructions::hlt;
 
-use crate::qemu::QemuExitCode;
+use crate::{dbg_print, dbg_println, qemu::QemuExitCode};
 
 #[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    dbg_print!("Kernel panic - aborting: ");
+    if let Some(p) = info.location() {
+        dbg_println!("at {}:{}: {}", p.file(), p.line(), info.message().unwrap());
+    } else {
+        dbg_println!("no information available.");
+    }
+
     // try to exit QEMU
     crate::qemu::exit_qemu(QemuExitCode::Failed);
 

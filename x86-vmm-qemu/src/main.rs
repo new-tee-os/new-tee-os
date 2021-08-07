@@ -71,6 +71,10 @@ async fn main() {
         .arg("-chardev")
         .arg("socket,path=edge.sock,id=tee-edge");
     run_cmd.arg("-device").arg("isa-serial,chardev=tee-edge");
+    // attach a device for shutting down the VM
+    run_cmd
+        .arg("-device")
+        .arg("isa-debug-exit,iobase=0xf4,iosize=0x04");
 
     tokio::select! {
         result = edge_call_server.listen() => {

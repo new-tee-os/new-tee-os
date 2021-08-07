@@ -11,8 +11,9 @@ entry_point!(start_kernel);
 
 fn clear_screen(boot_info: &'static mut BootInfo) {
     let vga_buffer = boot_info.framebuffer.as_mut().unwrap().buffer_mut();
+    let com1 = com::IsaSerialPort::new_uninit(com::COM1_PORT_BASE);
     // display a grid pattern if the serial is properly initialized
-    let pattern = if unsafe { com::serial_init() } {
+    let pattern = if let Ok(()) = unsafe { com1.init() } {
         b"\x00\xDD\x00"
     } else {
         b"\x00\x00\x00"
@@ -20,7 +21,7 @@ fn clear_screen(boot_info: &'static mut BootInfo) {
 
     for &ch in b"Hello, world!\r\n".iter() {
         unsafe {
-            com::serial_write(ch);
+            com1.write(ch);
         }
     }
 

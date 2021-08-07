@@ -64,6 +64,8 @@ async fn main() {
     run_cmd
         .arg("-drive")
         .arg(format!("format=raw,file={}", disk_img.display()));
+    // attach an output serial console
+    run_cmd.arg("-serial").arg("file:/dev/stdout");
     // attach edge call serial device
     run_cmd
         .arg("-chardev")

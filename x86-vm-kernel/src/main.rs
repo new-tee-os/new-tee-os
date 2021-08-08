@@ -1,7 +1,8 @@
 #![no_std]
 #![no_main]
-#![feature(panic_info_message)]
+#![feature(abi_x86_interrupt, panic_info_message)]
 
+mod interrupt;
 mod panic;
 mod qemu;
 
@@ -16,6 +17,7 @@ fn clear_screen(boot_info: &'static mut BootInfo) {
 }
 
 fn start_kernel(boot_info: &'static mut BootInfo) -> ! {
+    interrupt::init();
     clear_screen(boot_info);
 
     loop {

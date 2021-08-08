@@ -76,19 +76,15 @@ async fn main() {
         .arg("-device")
         .arg("isa-debug-exit,iobase=0xf4,iosize=0x04");
 
-    tokio::select! {
-        result = edge_call_server.listen() => {
-            result.unwrap();
-            log::info!("Edge call server closed, shutting down QEMU");
-        }
-        exit_status = run_cmd.status() => {
-            let exit_status = exit_status.unwrap();
-            if !exit_status.success() {
-                log::warn!("QEMU exited with status {}", exit_status);
-                std::process::exit(exit_status.code().unwrap_or(1));
-            } else {
-                log::info!("QEMU has shut down, closing edge call server");
-            }
-        }
+    let mut run_process = run_cmd.spawn().unwrap();
+    // Note: no race condition here, since the socket address is already bound to in `new()`
+    edge_call_server.listen().await.unwrap();
+    log::info!("Edge call server connection closed");
+
+    // check the exit status of QEMU
+    let exit_status = run_process.status().await.unwrap();
+    if !exit_status.success() {
+        log::warn!("QEMU exited with status {}", exit_status);
+        std::process::exit(exit_status.code().unwrap_or(1));
     }
 }

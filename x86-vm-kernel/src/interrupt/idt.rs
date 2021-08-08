@@ -12,6 +12,8 @@ lazy_static! {
                 .set_stack_index(EMERGENCY_IST_INDEX);
         }
 
+        super::devices::load_idt_entries(&mut idt);
+
         idt
     };
 }

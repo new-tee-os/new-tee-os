@@ -18,6 +18,7 @@ fn clear_screen(boot_info: &'static mut BootInfo) {
 
 fn start_kernel(boot_info: &'static mut BootInfo) -> ! {
     interrupt::init();
+    x86_64::instructions::interrupts::enable();
     clear_screen(boot_info);
 
     loop {

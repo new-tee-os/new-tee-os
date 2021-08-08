@@ -3,18 +3,11 @@ use spin::Mutex;
 use uart_16550::SerialPort;
 use x86_64::instructions::port::PortWriteOnly;
 
-#[derive(Clone, Copy)]
-#[repr(u32)]
-#[allow(unused)]
-pub enum QemuExitCode {
-    Success = 0x10,
-    Failed = 0x11,
-}
-
-pub fn exit_qemu(exit_code: QemuExitCode) {
+pub fn exit_qemu(exit_code: u32) {
     unsafe {
         let mut port = PortWriteOnly::new(0xF4);
-        port.write(exit_code as u32);
+        // the actual exit code will be (2n+1)
+        port.write(exit_code);
     }
 }
 

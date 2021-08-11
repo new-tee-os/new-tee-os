@@ -10,3 +10,7 @@ pic8259 = "0.10.1"
 spin = "0.9.2"
 uart_16550 = "0.2.15"
 x86_64 = "0.14.3"
+
+[package.metadata.bootloader]
+map-physical-memory = true
+physical-memory-offset = "0xFFFF_FFF0_0000_0000"

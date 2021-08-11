@@ -11,5 +11,8 @@
     "linker": "rust-lld",
     "panic-strategy": "abort",
     "disable-redzone": true,
-    "features": "-mmx,-sse,+soft-float"
+    "features": "-mmx,-sse,+soft-float",
+    "pre-link-args": {
+        "ld.lld": ["--image-base", "0xFFFFFFFFC0000000", "--gc-sections"]
+    }
 }

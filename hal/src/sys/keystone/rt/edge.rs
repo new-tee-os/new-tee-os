@@ -40,12 +40,14 @@ impl EdgeCallerHolder for KsEdgeCallerHolder<'_> {
         unsafe { &mut *EDGE_MEM_BASE }
     }
 
-    unsafe fn edge_call(&self) {
+    unsafe fn edge_call(&mut self) {
         sbi::stop_enclave(sbi::STOP_EDGE_CALL_HOST);
     }
 }
 
-impl<'l> GlobalEdgeCaller<'l, KsEdgeCallerHolder<'l>> for KsGlobalEdgeCaller {
+impl<'l> GlobalEdgeCaller<'l> for KsGlobalEdgeCaller {
+    type Holder = KsEdgeCallerHolder<'l>;
+
     fn acquire(&'l self) -> KsEdgeCallerHolder {
         KsEdgeCallerHolder(self.0.try_lock().expect("the edge caller is not reentrant"))
     }

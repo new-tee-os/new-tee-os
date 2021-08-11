@@ -4,11 +4,11 @@
 
 extern crate alloc;
 
-mod cfg;
+pub use hal::cfg;
+
 mod heap;
 mod interrupt;
 mod panic;
-mod qemu;
 
 use bootloader::{entry_point, BootInfo};
 use x86_64::instructions::hlt;

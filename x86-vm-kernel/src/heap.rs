@@ -2,9 +2,8 @@ use bootloader::{
     boot_info::{MemoryRegion, MemoryRegionKind},
     BootInfo,
 };
+use hal::dbg_println;
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
-
-use crate::dbg_println;
 
 #[global_allocator]
 static HEAP: LockedLinkedListHeap = unsafe { LockedLinkedListHeap::uninit() };

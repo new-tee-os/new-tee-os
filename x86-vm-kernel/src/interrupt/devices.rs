@@ -1,7 +1,7 @@
+use hal::dbg_print;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
 use super::pic::{InterruptIndex, PICS};
-use crate::dbg_print;
 
 extern "x86-interrupt" fn timer_int(_stack_frame: InterruptStackFrame) {
     dbg_print!(".");

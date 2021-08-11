@@ -1,6 +1,6 @@
 use x86_64::instructions::hlt;
 
-use crate::{dbg_print, dbg_println};
+use hal::{dbg_print, dbg_println};
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
@@ -12,7 +12,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     }
 
     // try to exit QEMU
-    crate::qemu::exit_qemu(1);
+    hal::arch::x86_vm::qemu::exit_qemu(1);
 
     // if QEMU didn't exit, trap inside an infinite loop
     loop {

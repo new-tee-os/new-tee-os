@@ -26,7 +26,7 @@ lazy_static! {
 macro_rules! dbg_print {
     ($($args:tt)+) => ({
         use core::fmt::Write;
-        write!($crate::qemu::SERIAL_DBG.lock(), $($args)+).unwrap()
+        write!($crate::arch::x86_vm::qemu::SERIAL_DBG.lock(), $($args)+).unwrap()
     });
 }
 

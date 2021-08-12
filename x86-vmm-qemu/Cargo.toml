@@ -7,6 +7,7 @@ edition = "2018"
 async-std = { version = "1.9.0", features = ["unstable"] }
 async-trait = "0.1.51"
 bootloader-locator = "0.0.4"
+edge-responder = { path = "../edge-responder" }
 env_logger = "0.9.0"
 futures-lite = "1.12.0"
 hal = { path = "../hal", features = ["x86-vm", "async-edge"] }

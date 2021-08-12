@@ -27,8 +27,9 @@ impl EdgeCallServer {
             let mut edge_mem = EdgeMemory::new();
             loop {
                 edge_mem.deserialize_async(&mut edge_stream).await?;
-                log::info!("Edge call requested: {}", edge_mem.req);
-                edge_mem.req = 0;
+                unsafe {
+                    edge_responder::handle_edge_call(&mut edge_mem);
+                }
                 edge_mem.serialize_async(&mut edge_stream).await?;
             }
         }

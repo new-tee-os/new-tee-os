@@ -1,3 +1,5 @@
+#[cfg(feature = "async-edge")]
+use alloc::boxed::Box;
 use core::convert::TryFrom;
 
 use super::EdgeCallInfo;
@@ -38,6 +40,13 @@ pub trait EdgeStream {
             self.write(*byte);
         }
     }
+}
+
+#[cfg(feature = "async-edge")]
+#[async_trait::async_trait]
+pub trait AsyncEdgeStream<E> {
+    async fn read_bulk_async(&mut self, buf: &mut [u8]) -> Result<(), E>;
+    async fn write_bulk_async(&mut self, buf: &[u8]) -> Result<(), E>;
 }
 
 impl EdgeMemory {
@@ -121,5 +130,45 @@ impl EdgeMemory {
         });
         // read the data
         stream.read_bulk(&mut self.buffer[0..(self.buf_len as usize)]);
+    }
+}
+
+#[cfg(feature = "async-edge")]
+impl EdgeMemory {
+    #[inline]
+    pub async fn serialize_async<E>(&self, stream: &mut impl AsyncEdgeStream<E>) -> Result<(), E> {
+        // write the header part
+        stream
+            .write_bulk_async(unsafe {
+                core::slice::from_raw_parts(
+                    self as *const Self as *const u8,
+                    memoffset::offset_of!(EdgeMemory, buffer),
+                )
+            })
+            .await?;
+        // write the data
+        stream.write_bulk_async(self.read_buffer()).await?;
+        Ok(())
+    }
+
+    #[inline]
+    pub async fn deserialize_async<E>(
+        &mut self,
+        stream: &mut impl AsyncEdgeStream<E>,
+    ) -> Result<(), E> {
+        // read the header part
+        stream
+            .read_bulk_async(unsafe {
+                core::slice::from_raw_parts_mut(
+                    self as *mut Self as *mut u8,
+                    memoffset::offset_of!(EdgeMemory, buffer),
+                )
+            })
+            .await?;
+        // read the data
+        stream
+            .read_bulk_async(&mut self.buffer[0..(self.buf_len as usize)])
+            .await?;
+        Ok(())
     }
 }

@@ -11,6 +11,7 @@ keystone-rt = ["kernel", "keystone", "riscv"]
 # x86 VM part
 x86-vm = []
 x86-vm-kernel = ["kernel", "x86-vm", "lazy_static", "uart_16550", "x86_64"]
+async-edge = ["async-trait"]
 
 [dependencies]
 cfg-if = "1.0.0"
@@ -22,6 +23,7 @@ spin = { version = "0.9.2", optional = true }
 static_assertions = "1.1.0"
 
 # x86 VM related things
+async-trait = { version = "0.1.51", optional = true }
 lazy_static = { version = "1.4.0", features = ["spin_no_std"], optional = true }
 uart_16550 = { version = "0.2.15", optional = true }
 x86_64 = { version = "0.14.3", optional = true }

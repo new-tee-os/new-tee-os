@@ -2,7 +2,7 @@ use std::convert::{TryFrom, TryInto};
 
 use hal::edge::{EdgeCallInfo, EdgeCallReq, EdgeMemory};
 
-use crate::edge_file;
+mod edge_file;
 
 pub unsafe fn handle_edge_call(edge_mem: *mut EdgeMemory) {
     use EdgeCallReq::*;

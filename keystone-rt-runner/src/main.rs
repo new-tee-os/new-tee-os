@@ -1,7 +1,5 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
-mod edge_call;
-mod edge_file;
 mod keystone;
 
 use hal::{
@@ -180,7 +178,7 @@ fn main() {
             EnclaveStatus::EdgeCallHost => {
                 //println!("Edge call requested");
                 unsafe {
-                    edge_call::handle_edge_call(edge_mem);
+                    edge_responder::handle_edge_call(edge_mem);
                 }
             }
             _ => panic!("Unexpected enclave status: {:?}", status),

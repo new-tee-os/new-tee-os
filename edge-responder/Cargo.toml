@@ -1,0 +1,9 @@
+[package]
+name = "edge-responder"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+failure = "0.1.8"
+hal = { path = "../hal" }
+nix = "0.22.0"

@@ -1,8 +1,15 @@
-use async_std::{io::BufReader, os::unix::net::UnixListener};
+use async_std::{
+    io::prelude::{ReadExt, WriteExt},
+    io::BufReader,
+    os::unix::net::{UnixListener, UnixStream},
+};
+use hal::edge::AsyncEdgeStream;
 
 pub struct EdgeCallServer {
     sock: UnixListener,
 }
+
+struct EdgeCallClient(UnixStream);
 
 impl EdgeCallServer {
     pub async fn new() -> async_std::io::Result<EdgeCallServer> {
@@ -30,5 +37,16 @@ impl EdgeCallServer {
             }
         }
         Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl AsyncEdgeStream<std::io::Error> for EdgeCallClient {
+    async fn read_bulk_async(&mut self, buf: &mut [u8]) -> Result<(), std::io::Error> {
+        self.0.read_exact(buf).await
+    }
+
+    async fn write_bulk_async(&mut self, buf: &[u8]) -> Result<(), std::io::Error> {
+        self.0.write_all(buf).await
     }
 }

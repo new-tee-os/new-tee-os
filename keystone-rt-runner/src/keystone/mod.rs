@@ -47,7 +47,7 @@ impl KeystoneDev {
                 Ok(())
             } else {
                 dbg!(err);
-                Err(nix::Error::from_errno(nix::errno::Errno::EINVAL))
+                Err(nix::errno::Errno::EINVAL)
             }
         })
     }

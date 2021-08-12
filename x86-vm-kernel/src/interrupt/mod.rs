@@ -7,10 +7,11 @@ pub mod tss;
 pub fn init() {
     gdt::GDT.gdt.load();
     unsafe {
-        x86_64::instructions::segmentation::set_cs(gdt::GDT.code_selector);
-        x86_64::instructions::segmentation::load_ds(gdt::GDT.data_selector);
-        x86_64::instructions::segmentation::load_es(gdt::GDT.data_selector);
-        x86_64::instructions::segmentation::load_ss(gdt::GDT.data_selector);
+        use x86_64::instructions::segmentation::*;
+        CS::set_reg(gdt::GDT.code_selector);
+        DS::set_reg(gdt::GDT.data_selector);
+        ES::set_reg(gdt::GDT.data_selector);
+        SS::set_reg(gdt::GDT.data_selector);
         x86_64::instructions::tables::load_tss(gdt::GDT.tss_selector);
     }
 

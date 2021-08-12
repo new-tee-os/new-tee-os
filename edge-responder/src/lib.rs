@@ -36,7 +36,7 @@ unsafe fn handle_syscall(edge_mem: &mut EdgeMemory) {
     // wrap the result in an i64
     let result: i64 = match result {
         Ok(retval) => retval.try_into().expect("integer overflow?!"),
-        Err(err) => err.as_errno().expect("not an errno?!") as i32 as i64,
+        Err(err) => err as i32 as i64,
     };
     edge_mem.result = result;
 }

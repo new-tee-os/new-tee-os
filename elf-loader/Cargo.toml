@@ -5,4 +5,4 @@ authors = ["zjuliangxun <m13009809900@163.com>"]
 edition = "2018"
 
 [dependencies]
-goblin = { version = "0.4.1", default-features = false, features = ["elf32", "elf64", "endian_fd"] }
+goblin = { version = "0.4.2", default-features = false, features = ["elf32", "elf64", "endian_fd"] }

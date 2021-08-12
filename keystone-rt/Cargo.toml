@@ -10,11 +10,11 @@ hal = { path = "../hal", features = ["keystone-rt"] }
 kmalloc = { path = "../kmalloc" }
 linux-abi = { path = "../linux-abi", features = ["keystone"] }
 log = "0.4.14"
-riscv = { version = "0.6.0", features = ["inline-asm"] }
+riscv = { version = "0.7.0", features = ["inline-asm"] }
 spin = "0.9.2"
 
 # enable no-std in phf
 [dependencies.phf]
-version = "0.9.0"
+version = "0.10.0"
 default-features = false
 features = ["macros"]

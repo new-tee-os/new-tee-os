@@ -8,6 +8,7 @@ pub use hal::cfg;
 
 mod heap;
 mod interrupt;
+mod klog;
 mod panic;
 
 use bootloader::{entry_point, BootInfo};
@@ -27,10 +28,12 @@ fn start_kernel(boot_info: &'static mut BootInfo) -> ! {
         Some(cfg::KERNEL_MIRROR_BASE as u64)
     );
     heap::init(boot_info);
+    klog::klog_init().unwrap();
 
     interrupt::init();
     x86_64::instructions::interrupts::enable();
     clear_screen(boot_info);
+    log::info!("It didn't crash!");
 
     loop {
         hlt();

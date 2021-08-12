@@ -1,9 +1,8 @@
 use async_std::{
     io::prelude::{ReadExt, WriteExt},
-    io::BufReader,
     os::unix::net::{UnixListener, UnixStream},
 };
-use hal::edge::AsyncEdgeStream;
+use hal::edge::{AsyncEdgeStream, EdgeMemory};
 
 pub struct EdgeCallServer {
     sock: UnixListener,
@@ -20,20 +19,17 @@ impl EdgeCallServer {
 
     pub async fn listen(&self) -> async_std::io::Result<()> {
         use async_std::stream::StreamExt;
-        use futures_lite::io::AsyncBufReadExt;
 
         log::info!("Listening for edge calls at edge.sock");
         let mut incoming = self.sock.incoming();
         if let Some(stream) = incoming.next().await {
-            let stream = stream?;
-            let mut reader = BufReader::new(stream);
+            let mut edge_stream = EdgeCallClient(stream?);
+            let mut edge_mem = EdgeMemory::new();
             loop {
-                let mut line = String::new();
-                reader.read_line(&mut line).await?;
-                if line.is_empty() {
-                    break;
-                }
-                log::info!("Guest says: {}", line);
+                edge_mem.deserialize_async(&mut edge_stream).await?;
+                log::info!("Edge call requested: {}", edge_mem.req);
+                edge_mem.req = 0;
+                edge_mem.serialize_async(&mut edge_stream).await?;
             }
         }
         Ok(())

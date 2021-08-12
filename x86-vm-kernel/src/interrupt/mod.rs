@@ -5,14 +5,14 @@ pub mod pic;
 pub mod tss;
 
 pub fn init() {
-    gdt::GDT.gdt.load();
+    gdt::GDT.load();
     unsafe {
         use x86_64::instructions::segmentation::*;
-        CS::set_reg(gdt::GDT.code_selector);
-        DS::set_reg(gdt::GDT.data_selector);
-        ES::set_reg(gdt::GDT.data_selector);
-        SS::set_reg(gdt::GDT.data_selector);
-        x86_64::instructions::tables::load_tss(gdt::GDT.tss_selector);
+        CS::set_reg(gdt::KERNEL_CODE_SEL);
+        DS::set_reg(gdt::KERNEL_DATA_SEL);
+        ES::set_reg(gdt::KERNEL_DATA_SEL);
+        SS::set_reg(gdt::KERNEL_DATA_SEL);
+        x86_64::instructions::tables::load_tss(gdt::TSS_SEL);
     }
 
     idt::IDT.load();

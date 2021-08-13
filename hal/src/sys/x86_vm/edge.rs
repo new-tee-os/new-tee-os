@@ -39,6 +39,6 @@ impl EdgeStream for QemuEdgeStream<'_> {
     }
 
     fn write(&mut self, ch: u8) {
-        self.0.send(ch);
+        self.0.send_binary(ch);
     }
 }

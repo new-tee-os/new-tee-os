@@ -25,5 +25,5 @@ static_assertions = "1.1.0"
 # x86 VM related things
 async-trait = { version = "0.1.51", optional = true }
 lazy_static = { version = "1.4.0", features = ["spin_no_std"], optional = true }
-uart_16550 = { version = "0.2.15", optional = true }
+uart_16550 = { git = "https://github.com/Kazurin-775/uart_16550.git", rev = "080ae35", optional = true }
 x86_64 = { version = "0.14.4", optional = true }

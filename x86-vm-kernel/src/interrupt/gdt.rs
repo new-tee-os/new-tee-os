@@ -37,3 +37,14 @@ lazy_static! {
         gdt
     };
 }
+
+pub unsafe fn apply_selectors() {
+    use x86_64::instructions::segmentation::*;
+
+    CS::set_reg(KERNEL_CODE_SEL);
+    DS::set_reg(KERNEL_DATA_SEL);
+    ES::set_reg(KERNEL_DATA_SEL);
+    SS::set_reg(KERNEL_DATA_SEL);
+
+    x86_64::instructions::tables::load_tss(TSS_SEL);
+}

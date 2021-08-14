@@ -40,11 +40,20 @@ lazy_static! {
 
 pub unsafe fn apply_selectors() {
     use x86_64::instructions::segmentation::*;
+    use x86_64::registers::model_specific::*;
+    use x86_64::VirtAddr;
 
     CS::set_reg(KERNEL_CODE_SEL);
     DS::set_reg(KERNEL_DATA_SEL);
     ES::set_reg(KERNEL_DATA_SEL);
     SS::set_reg(KERNEL_DATA_SEL);
+
+    // configure FS / GS to null selectors
+    FS::set_reg(SegmentSelector(0));
+    GS::set_reg(SegmentSelector(0));
+    // configure FS / GS base addresses to 0
+    FsBase::write(VirtAddr::new(0));
+    GsBase::write(VirtAddr::new(0));
 
     x86_64::instructions::tables::load_tss(TSS_SEL);
 }

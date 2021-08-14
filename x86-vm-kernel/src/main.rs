@@ -9,6 +9,7 @@ pub use hal::cfg;
 mod heap;
 mod interrupt;
 mod klog;
+mod memory;
 mod panic;
 
 use bootloader::{entry_point, BootInfo};

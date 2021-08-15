@@ -100,7 +100,9 @@ impl EdgeFile {
     }
 
     pub fn close(self) {
-        self.close_remote_file();
+        // prevent drop handler from being called
+        let guard = core::mem::ManuallyDrop::new(self);
+        guard.close_remote_file();
     }
 }
 

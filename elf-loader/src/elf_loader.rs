@@ -27,8 +27,18 @@ fn check_elf64_riscv(head: &Header) {
     // check pass
 }
 
-pub trait MapperFn: FnMut(*const (), usize, usize) {}
-impl<T> MapperFn for T where T: FnMut(*const (), usize, usize) {}
+pub trait MapperFn {
+    fn map(&mut self, from: *const (), size: usize, to: usize);
+}
+
+impl<T> MapperFn for T
+where
+    T: FnMut(*const (), usize, usize),
+{
+    fn map(&mut self, from: *const (), size: usize, to: usize) {
+        self(from, size, to);
+    }
+}
 
 pub struct ElfFile {
     entry: u64,
@@ -88,7 +98,7 @@ impl ElfFile {
                 file.read(&mut mem[virt_off_begin..virt_off_end]);
 
                 // map the memory block to the virtual address specified in the ELF file
-                mapper(
+                mapper.map(
                     mem.as_ptr() as *const _,
                     mem.len(),
                     (seg.p_vaddr as usize) / PAGE_SIZE * PAGE_SIZE,

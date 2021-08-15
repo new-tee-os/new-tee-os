@@ -4,9 +4,14 @@ version = "0.1.0"
 edition = "2018"
 
 [features]
-default = ["keystone"]
 keystone = ["hal/keystone-rt"]
 
 [dependencies]
 hal = { path = "../hal" }
 log = "0.4.14"
+
+# enable no-std in phf
+[dependencies.phf]
+version = "0.10.0"
+default-features = false
+features = ["macros"]

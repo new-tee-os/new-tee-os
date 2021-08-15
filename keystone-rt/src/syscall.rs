@@ -1,15 +1,9 @@
 use core::convert::TryInto;
 
 use crate::frame::TrapFrame;
-use linux_abi::syscall::{listing::*, SyscallHandler};
-use phf::{phf_map, Map};
+use linux_abi::syscall::tables::TABLE_GENERIC as SYSCALL_TABLE;
+use linux_abi::syscall::SyscallHandler;
 use riscv::register::sepc;
-
-// https://elixir.bootlin.com/linux/latest/source/include/uapi/asm-generic/unistd.h
-static SYSCALL_MAP: Map<u32, SyscallHandler> = phf_map! {
-    64u32 => SYSCALL_WRITE,
-    93u32 => SYSCALL_EXIT,
-};
 
 pub unsafe fn handle_syscall(frame: *mut TrapFrame) {
     // get arguments from the frame
@@ -21,7 +15,7 @@ pub unsafe fn handle_syscall(frame: *mut TrapFrame) {
     let result;
 
     // dispatch syscall by number
-    match SYSCALL_MAP.get(&nr).map(|&f| f) {
+    match SYSCALL_TABLE.get(&nr).map(|&f| f) {
         Some(SyscallHandler::Syscall1(f)) => {
             result = f(arg0);
         }

@@ -1,8 +1,7 @@
 mod fs;
-/// Lists all syscalls in a single module, allowing each architecture to easily
-/// build their own syscall tables.
 pub mod listing;
 mod process;
+pub mod tables;
 
 #[derive(Clone, Copy)]
 pub enum SyscallHandler {

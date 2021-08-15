@@ -17,12 +17,13 @@ pub struct EdgeMemory {
 }
 
 #[repr(u32)]
-#[derive(num_enum::TryFromPrimitive, num_enum::IntoPrimitive)]
+#[derive(PartialEq, Eq, num_enum::TryFromPrimitive, num_enum::IntoPrimitive)]
 pub enum EdgeCallReq {
     EdgeCallInvalid,
     EdgeCallPrint,
     EdgeCallSyscall,
     EdgeCallFileApi,
+    EdgeCallStreamClose,
 }
 
 pub trait EdgeStream {

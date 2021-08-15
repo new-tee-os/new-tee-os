@@ -2,7 +2,7 @@ use async_std::{
     io::prelude::{ReadExt, WriteExt},
     os::unix::net::{UnixListener, UnixStream},
 };
-use hal::edge::{AsyncEdgeStream, EdgeMemory};
+use hal::edge::{AsyncEdgeStream, EdgeCallReq, EdgeMemory};
 
 pub struct EdgeCallServer {
     sock: UnixListener,
@@ -27,10 +27,19 @@ impl EdgeCallServer {
             let mut edge_mem = EdgeMemory::new();
             loop {
                 edge_mem.deserialize_async(&mut edge_stream).await?;
+                if edge_mem.read_request() == EdgeCallReq::EdgeCallStreamClose {
+                    log::info!("Edge call client signaled exit");
+                    edge_mem.serialize_async(&mut edge_stream).await?;
+                    edge_stream.0.flush().await?;
+                    // trick: wait for QEMU to properly receive data
+                    assert_eq!(edge_stream.0.read(&mut [0]).await?, 0);
+                    break;
+                }
                 unsafe {
                     edge_responder::handle_edge_call(&mut edge_mem);
                 }
                 edge_mem.serialize_async(&mut edge_stream).await?;
+                edge_stream.0.flush().await?;
             }
         }
         Ok(())

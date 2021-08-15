@@ -9,7 +9,7 @@ extern "C" {
 }
 
 #[no_mangle]
-unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: usize) {
+unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: usize) -> isize {
     let result;
 
     // dispatch syscall by number
@@ -23,6 +23,8 @@ unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: u
         }
         None => panic!("unknown syscall number {}", nr),
     }
+
+    result
 }
 
 pub fn init() {

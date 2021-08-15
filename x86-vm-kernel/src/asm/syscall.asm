@@ -7,7 +7,7 @@ syscall_entry:
     xchg    gs:[0], rsp
 
     # save clobbered registers
-    push    rax
+    # push    rax
     push    rcx
     push    rdx
     push    rsi
@@ -22,6 +22,7 @@ syscall_entry:
 
     # jump to Rust code
     call    handle_syscall
+    # the return value is stored in rax
 
     # restore registers
     pop     r11
@@ -32,7 +33,7 @@ syscall_entry:
     pop     rsi
     pop     rdx
     pop     rcx
-    pop     rax
+    # pop     rax
 
     # save kernel sp & load user sp
     xchg    gs:[0], rsp

@@ -5,6 +5,8 @@ use goblin::{
 
 use alloc::alloc::{alloc, Layout};
 
+use crate::arch::ElfArch;
+
 const PAGE_SIZE: usize = 0x1000;
 
 #[inline]
@@ -17,11 +19,11 @@ fn get_pages(n: u64) -> usize {
     }
 }
 
-fn check_elf64_riscv(head: &Header) {
+fn check_elf64<A: ElfArch>(head: &Header) {
     if &head.e_ident[0..4] != b"\x7FELF" {
         panic!("invalid ELF magic number: {:?}", &head.e_ident[0..4]);
     }
-    if head.e_machine != header::EM_RISCV || head.e_type != header::ET_EXEC {
+    if head.e_machine != A::E_MACHINE || head.e_type != header::ET_EXEC {
         panic!("unsupported architecture or ELF file type")
     }
     // check pass
@@ -50,13 +52,17 @@ pub trait ElfReader {
 }
 
 impl ElfFile {
-    pub fn load<R: ElfReader>(file: &mut R, mut mapper: impl MapperFn) -> ElfFile {
+    pub fn load<R: ElfReader, A: ElfArch>(
+        file: &mut R,
+        _arch: A,
+        mut mapper: impl MapperFn,
+    ) -> ElfFile {
         // read ELF header
         let mut header = [0; core::mem::size_of::<Header>()];
         assert_eq!(file.read(&mut header), header.len());
         let header = Elf::parse_header(&header).expect("failed to parse ELF header");
         let mut elf = Elf::lazy_parse(header).expect("failed to parse ELF file");
-        check_elf64_riscv(&elf.header);
+        check_elf64::<A>(&elf.header);
 
         // create context
         let container = if header.e_ident[header::EI_CLASS] == header::ELFCLASS64 {

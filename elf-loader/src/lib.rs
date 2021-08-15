@@ -3,6 +3,7 @@
 
 extern crate alloc;
 
+pub mod arch;
 mod elf_loader;
 
 pub use crate::elf_loader::*;
@@ -11,6 +12,7 @@ pub use crate::elf_loader::*;
 fn test1() {
     elf_loader::ElfFile::load(
         &std::fs::read("./riscv-hello-world").unwrap(),
-        |from, to| println!("{:?} -> {:#X}", from, to),
+        arch::RiscV,
+        |from, size, to| println!("({:?} + {:#X}) -> {:#X}", from, size, to),
     );
 }

@@ -6,12 +6,14 @@ extern crate alloc;
 
 pub use hal::cfg;
 
+mod elf;
 mod heap;
 mod interrupt;
 mod klog;
 mod memory;
 mod panic;
 mod syscall;
+mod user;
 
 use bootloader::{entry_point, BootInfo};
 use x86_64::instructions::hlt;
@@ -37,6 +39,8 @@ fn start_kernel(boot_info: &'static mut BootInfo) -> ! {
     x86_64::instructions::interrupts::enable();
     clear_screen(boot_info);
     log::info!("It didn't crash!");
+
+    user::enter_user_mode();
 
     loop {
         hlt();

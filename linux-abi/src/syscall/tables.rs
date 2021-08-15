@@ -11,3 +11,9 @@ pub static TABLE_GENERIC: Map<u32, SyscallHandler> = phf_map! {
     64u32 => SYSCALL_WRITE,
     93u32 => SYSCALL_EXIT,
 };
+
+// https://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/
+pub static TABLE_X86_64: Map<u32, SyscallHandler> = phf_map! {
+    1u32 => SYSCALL_WRITE,
+    60u32 => SYSCALL_EXIT,
+};

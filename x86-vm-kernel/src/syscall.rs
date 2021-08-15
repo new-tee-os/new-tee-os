@@ -1,3 +1,5 @@
+use linux_abi::syscall::tables::TABLE_X86_64 as SYSCALL_TABLE;
+use linux_abi::syscall::SyscallHandler;
 use x86_64::VirtAddr;
 
 global_asm!(include_str!("asm/syscall.asm"));
@@ -7,8 +9,20 @@ extern "C" {
 }
 
 #[no_mangle]
-extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: usize) {
-    panic!("syscall number {}", nr);
+unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: usize) {
+    let result;
+
+    // dispatch syscall by number
+    let nr = nr as u32;
+    match SYSCALL_TABLE.get(&nr).map(|&f| f) {
+        Some(SyscallHandler::Syscall1(f)) => {
+            result = f(arg0);
+        }
+        Some(SyscallHandler::Syscall3(f)) => {
+            result = f(arg0, arg1, arg2);
+        }
+        None => panic!("unknown syscall number {}", nr),
+    }
 }
 
 pub fn init() {

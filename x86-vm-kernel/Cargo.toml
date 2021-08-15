@@ -9,6 +9,7 @@ elf-loader = { path = "../elf-loader" }
 hal = { path = "../hal", features = ["x86-vm-kernel"] }
 kmalloc = { path = "../kmalloc" }
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
+linux-abi = { path = "../linux-abi" }
 log = "0.4.14"
 pic8259 = "0.10.1"
 spin = "0.9.2"

@@ -40,4 +40,4 @@ syscall_entry:
     swapgs
 
     # return to userspace
-    sysret
+    sysretq

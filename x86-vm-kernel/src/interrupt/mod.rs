@@ -9,6 +9,7 @@ pub fn init() {
     unsafe {
         gdt::apply_selectors();
     }
+    hal::arch::x86_vm::security::enforce();
 
     idt::IDT.load();
     pic::init();

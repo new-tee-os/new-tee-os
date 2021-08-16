@@ -75,6 +75,8 @@ async fn main() {
     run_cmd
         .arg("-device")
         .arg("isa-debug-exit,iobase=0xf4,iosize=0x04");
+    // security options
+    run_cmd.arg("-cpu").arg("kvm64,smap,smep");
 
     let mut run_process = run_cmd.spawn().unwrap();
     // Note: no race condition here, since the socket address is already bound to in `new()`

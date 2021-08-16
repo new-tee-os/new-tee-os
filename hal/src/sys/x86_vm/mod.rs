@@ -1,8 +1,10 @@
-// stub
-
 pub mod cfg;
 #[cfg(feature = "kernel")]
 pub mod edge;
+#[cfg(feature = "kernel")]
+pub mod mem;
+#[cfg(feature = "kernel")]
+pub mod task;
 
 #[cfg(feature = "kernel")]
 pub fn exit_enclave(retval: usize) {

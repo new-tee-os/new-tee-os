@@ -6,6 +6,7 @@ edition = "2018"
 [dependencies]
 bootloader = "0.10.7"
 elf-loader = { path = "../elf-loader" }
+executor = { git = "https://github.com/rcore-os/executor.git", rev = "04b6b7b" }
 hal = { path = "../hal", features = ["x86-vm-kernel"] }
 kmalloc = { path = "../kmalloc" }
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }

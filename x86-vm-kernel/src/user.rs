@@ -1,4 +1,9 @@
-use hal::edge::EdgeFile;
+use alloc::sync::Arc;
+use hal::{
+    edge::EdgeFile,
+    task::{Task, TaskFuture},
+};
+use spin::Mutex;
 use x86_64::{
     structures::paging::{
         FrameAllocator, Mapper, OffsetPageTable, Page, PageTableFlags, PhysFrame, Size4KiB,
@@ -70,33 +75,36 @@ pub fn enter_user_mode() {
         .flush();
     }
 
-    // construct a user context
-    use alloc::boxed::Box;
-    let ctx = Box::leak(Box::new(0usize));
-    x86_64::registers::model_specific::GsBase::write(VirtAddr::from_ptr(ctx));
+    // construct a task
+    let mut task = Task::create(0);
+    task.kernel_ctx.as_mut().unwrap().rbx = entry_point as usize;
+    let task_future = TaskFuture::new(Arc::new(Mutex::new(task)));
 
     // enter user mode
-    unsafe {
-        asm!(
-            // save kernel sp
-            "mov    gs:[0], rsp",
-            "swapgs",
-            // construct an interrupt stack frame
-            "push   {ss}",
-            "push   {rsp}",
-            "pushf",
-            "push   {cs}",
-            "push   {rip}",
-            // return to user!
-            "iretq",
+    executor::spawn(task_future);
+    executor::run_until_idle();
+}
 
-            // {rsp} cannot fit into an imm32
-            rsp = in(reg) hal::cfg::USER_STACK_TOP,
-            ss = const crate::interrupt::gdt::USER_DATA_SEL.0,
-            cs = const crate::interrupt::gdt::USER_CODE_SEL.0,
-            rip = in(reg) entry_point,
+#[no_mangle]
+unsafe extern "C" fn user_entry() -> ! {
+    asm!(
+        // save kernel sp
+        "mov    gs:[0], rsp",
+        "swapgs",
+        // construct an interrupt stack frame
+        "push   {ss}",
+        "push   {rsp}",
+        "pushf",
+        "push   {cs}",
+        "push   rbx", // rip
+        // return to user!
+        "iretq",
 
-            options(noreturn),
-        );
-    }
+        // {rsp} cannot fit into an imm32
+        rsp = in(reg) hal::cfg::USER_STACK_TOP,
+        ss = const crate::interrupt::gdt::USER_DATA_SEL.0,
+        cs = const crate::interrupt::gdt::USER_CODE_SEL.0,
+
+        options(noreturn),
+    );
 }

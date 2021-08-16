@@ -51,6 +51,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "executor"
+version = "0.6.0"
+source = "git+https://github.com/rcore-os/executor.git?rev=04b6b7b#04b6b7be19fcf755953752abb1d78a118d6dc8f9"
+dependencies = [
+ "executor-macros",
+ "lazy_static",
+ "spin 0.5.2",
+ "woke",
+]
+
+[[package]]
+name = "executor-macros"
+version = "0.0.1"
+source = "git+https://github.com/rcore-os/executor.git?rev=04b6b7b#04b6b7be19fcf755953752abb1d78a118d6dc8f9"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -404,11 +425,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 
 [[package]]
+name = "woke"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eafdab77c9ee549298ca6585107832aa89d77b14ba13cda220fec6105b17dbb1"
+
+[[package]]
 name = "x86-vm-kernel"
 version = "0.1.0"
 dependencies = [
  "bootloader",
  "elf-loader",
+ "executor",
  "hal",
  "kmalloc",
  "lazy_static",

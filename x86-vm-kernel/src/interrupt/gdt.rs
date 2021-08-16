@@ -57,3 +57,19 @@ pub unsafe fn apply_selectors() {
 
     x86_64::instructions::tables::load_tss(TSS_SEL);
 }
+
+pub fn enter_user() {
+    use x86_64::instructions::segmentation::*;
+    unsafe {
+        DS::set_reg(USER_DATA_SEL);
+        ES::set_reg(USER_DATA_SEL);
+    }
+}
+
+pub fn enter_kernel() {
+    use x86_64::instructions::segmentation::*;
+    unsafe {
+        DS::set_reg(KERNEL_DATA_SEL);
+        ES::set_reg(KERNEL_DATA_SEL);
+    }
+}

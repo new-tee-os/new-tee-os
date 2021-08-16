@@ -87,21 +87,24 @@ pub fn enter_user_mode() {
 
 #[no_mangle]
 unsafe extern "C" fn user_entry() -> ! {
+    crate::interrupt::gdt::enter_user();
+
     asm!(
         // save kernel sp
         "mov    gs:[0], rsp",
         "swapgs",
         // construct an interrupt stack frame
         "push   {ss}",
-        "push   {rsp}",
+        // {rsp} cannot fit into an imm32
+        "mov    rax, {rsp}",
+        "push   rax",
         "pushf",
         "push   {cs}",
         "push   rbx", // rip
         // return to user!
         "iretq",
 
-        // {rsp} cannot fit into an imm32
-        rsp = in(reg) hal::cfg::USER_STACK_TOP,
+        rsp = const hal::cfg::USER_STACK_TOP,
         ss = const crate::interrupt::gdt::USER_DATA_SEL.0,
         cs = const crate::interrupt::gdt::USER_CODE_SEL.0,
 

@@ -10,6 +10,7 @@ extern "C" {
 
 #[no_mangle]
 unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: usize) -> isize {
+    crate::interrupt::gdt::enter_kernel();
     let result;
 
     // dispatch syscall by number
@@ -26,6 +27,7 @@ unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: u
 
     hal::task::yield_to_sched();
 
+    crate::interrupt::gdt::enter_user();
     result
 }
 

@@ -24,6 +24,8 @@ unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: u
         None => panic!("unknown syscall number {}", nr),
     }
 
+    hal::task::yield_to_sched();
+
     result
 }
 

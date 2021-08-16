@@ -82,9 +82,11 @@ async fn main() {
     log::info!("Edge call server connection closed");
 
     // check the exit status of QEMU
-    let exit_status = run_process.status().await.unwrap();
-    if !exit_status.success() {
+    let exit_status = run_process.status().await.unwrap().code().unwrap_or(1);
+    // trick: (2n+1) => n
+    let exit_status = (exit_status - 1) / 2;
+    if exit_status != 0 {
         log::warn!("QEMU exited with status {}", exit_status);
-        std::process::exit(exit_status.code().unwrap_or(1));
+        std::process::exit(exit_status);
     }
 }

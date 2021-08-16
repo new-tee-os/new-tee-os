@@ -94,3 +94,19 @@ pub fn yield_to_sched() {
         ktask_leave();
     }
 }
+
+/// The system idle task, used for debugging.
+pub struct IdleTask;
+
+impl Future for IdleTask {
+    type Output = ();
+
+    fn poll(
+        self: core::pin::Pin<&mut Self>,
+        cx: &mut core::task::Context<'_>,
+    ) -> core::task::Poll<Self::Output> {
+        crate::println!("System idle...");
+        cx.waker().wake_by_ref();
+        core::task::Poll::Pending
+    }
+}

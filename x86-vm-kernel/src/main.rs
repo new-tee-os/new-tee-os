@@ -34,9 +34,11 @@ fn start_kernel(boot_info: &'static mut BootInfo) -> ! {
     heap::init(boot_info);
     klog::klog_init().unwrap();
 
+    hal::arch::x86_vm::arch_init();
     syscall::init();
     interrupt::init();
     x86_64::instructions::interrupts::enable();
+
     clear_screen(boot_info);
     log::info!("It didn't crash!");
 

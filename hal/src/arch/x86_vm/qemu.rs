@@ -24,10 +24,12 @@ lazy_static! {
 
 #[macro_export]
 macro_rules! dbg_print {
-    ($($args:tt)+) => ({
-        use core::fmt::Write;
-        write!($crate::arch::x86_vm::qemu::SERIAL_DBG.lock(), $($args)+).unwrap()
-    });
+    ($($args:tt)+) => {{
+        ::x86_64::instructions::interrupts::without_interrupts(|| {
+            use core::fmt::Write;
+            write!($crate::arch::x86_vm::qemu::SERIAL_DBG.lock(), $($args)+).unwrap()
+        })
+    }};
 }
 
 #[macro_export]

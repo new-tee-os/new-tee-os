@@ -26,13 +26,13 @@ fn clear_screen(boot_info: &mut BootInfo) {
 }
 
 fn start_kernel(boot_info: &'static mut BootInfo) -> ! {
+    klog::klog_init().unwrap();
     // assert that a mirror mapping is created at `KERNEL_MIRROR_BASE`
     assert_eq!(
         Option::from(boot_info.physical_memory_offset),
         Some(cfg::KERNEL_MIRROR_BASE as u64)
     );
     heap::init(boot_info);
-    klog::klog_init().unwrap();
 
     hal::arch::x86_vm::arch_init();
     syscall::init();

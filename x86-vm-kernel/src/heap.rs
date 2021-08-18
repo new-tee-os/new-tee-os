@@ -2,7 +2,6 @@ use bootloader::{
     boot_info::{MemoryRegion, MemoryRegionKind},
     BootInfo,
 };
-use hal::dbg_println;
 use kmalloc::{Kmalloc, LockedLinkedListHeap};
 
 #[global_allocator]
@@ -13,7 +12,7 @@ pub fn init(boot_info: &BootInfo) {
     for memory_region in boot_info.memory_regions.iter() {
         if memory_region.kind == MemoryRegionKind::Usable {
             if let Some(_) = heap_region {
-                dbg_println!("Warning: ignoring extra memory region {:?}", memory_region);
+                log::warn!("Ignoring extra memory region {:?}", memory_region);
             } else {
                 heap_region = Some(memory_region);
             }
@@ -21,7 +20,7 @@ pub fn init(boot_info: &BootInfo) {
     }
 
     let heap_region = heap_region.unwrap();
-    dbg_println!("Creating heap at {:?}", heap_region);
+    log::debug!("Creating heap at {:?}", heap_region);
     unsafe {
         HEAP.init(
             (crate::cfg::KERNEL_MIRROR_BASE + heap_region.start as usize) as *mut _,

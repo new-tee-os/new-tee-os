@@ -1,8 +1,8 @@
 pub mod devices;
-pub mod gdt;
 pub mod idt;
 pub mod pic;
-pub mod tss;
+
+use hal::arch::x86_vm::gdt;
 
 pub fn init() {
     gdt::GDT.load();

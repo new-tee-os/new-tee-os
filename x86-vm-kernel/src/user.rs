@@ -1,5 +1,6 @@
 use alloc::sync::Arc;
 use hal::{
+    arch::x86_vm::gdt,
     edge::EdgeFile,
     task::{Task, TaskFuture},
 };
@@ -87,7 +88,7 @@ pub fn enter_user_mode() {
 
 #[no_mangle]
 unsafe extern "C" fn user_entry() -> ! {
-    crate::interrupt::gdt::enter_user();
+    gdt::enter_user();
 
     asm!(
         // save kernel sp
@@ -105,8 +106,8 @@ unsafe extern "C" fn user_entry() -> ! {
         "iretq",
 
         rsp = const hal::cfg::USER_STACK_TOP,
-        ss = const crate::interrupt::gdt::USER_DATA_SEL.0,
-        cs = const crate::interrupt::gdt::USER_CODE_SEL.0,
+        ss = const gdt::USER_DATA_SEL.0,
+        cs = const gdt::USER_CODE_SEL.0,
 
         options(noreturn),
     );

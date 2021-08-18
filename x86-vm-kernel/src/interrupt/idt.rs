@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
-use super::tss::EMERGENCY_IST_INDEX;
+use hal::arch::x86_vm::tss::EMERGENCY_IST_INDEX;
 
 lazy_static! {
     pub static ref IDT: InterruptDescriptorTable = {

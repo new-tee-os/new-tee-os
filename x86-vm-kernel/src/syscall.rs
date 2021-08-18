@@ -1,3 +1,4 @@
+use hal::arch::x86_vm::gdt;
 use linux_abi::syscall::tables::TABLE_X86_64 as SYSCALL_TABLE;
 use linux_abi::syscall::SyscallHandler;
 use x86_64::VirtAddr;
@@ -10,7 +11,7 @@ extern "C" {
 
 #[no_mangle]
 unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: usize) -> isize {
-    crate::interrupt::gdt::enter_kernel();
+    gdt::enter_kernel();
     let result;
 
     // dispatch syscall by number
@@ -27,12 +28,11 @@ unsafe extern "C" fn handle_syscall(arg0: usize, arg1: usize, arg2: usize, nr: u
 
     hal::task::yield_to_sched();
 
-    crate::interrupt::gdt::enter_user();
+    gdt::enter_user();
     result
 }
 
 pub fn init() {
-    use crate::interrupt::gdt;
     use x86_64::registers::model_specific as msr;
 
     // configure segment selectors

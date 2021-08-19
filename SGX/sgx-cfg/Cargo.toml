@@ -1,0 +1,8 @@
+[package]
+name = "sgx-cfg"
+version = "0.1.0"
+authors = ["zjuliangxun <m13009809900@163.com>"]
+edition = "2018"
+
+
+[dependencies]

@@ -1,1 +1,2 @@
-../hal/rust-toolchain
+[toolchain]
+channel = "nightly"

@@ -1,0 +1,16 @@
+[package]
+name = "app"
+version = "1.0.0"
+build = "build.rs"
+
+[dependencies]
+nix = "0.20.0"
+libc = "0.2.95"
+log = "0.4.14"
+
+[target.'cfg(not(target_env = "sgx"))'.dependencies]
+sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+
+[patch."https://github.com/apache/teaclave-sgx-sdk.git"]
+sgx_urts = { path = "../lib/sgx_urts/" }

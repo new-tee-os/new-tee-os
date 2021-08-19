@@ -1,0 +1,19 @@
+[package]
+name = "linux-abi"
+version = "0.1.0"
+authors = ["zjuliangxun <m13009809900@163.com>"]
+edition = "2018"
+
+[dependencies]
+log="0.4.14"
+sgx-hal={path="../sgx-hal"}
+
+# enable no-std in phf
+[dependencies.phf]
+git = "https://github.com/Kazurin-775/rust-phf.git"
+rev = "171f1f59"
+default-features = false
+features = ["macros"]
+
+[target.'cfg(not(target_env = "sgx"))'.dependencies]
+sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }

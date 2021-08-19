@@ -1,0 +1,30 @@
+[package]
+name = "sgxteeos"
+version = "1.0.0"
+authors = ["zjuliangxun <m13009809900@163.com>"]
+
+[lib]
+name = "sgxteeos"
+crate-type = ["staticlib"]
+
+[features]
+default = []
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+lto = true
+
+[dependencies]
+linux-abi = {path = "../linux-abi"}
+sgx-cfg = {path = "../sgx-cfg"}
+sgx-rt = {path = "../sgx-rt"}
+sgx-hal = {path = "../sgx-hal"}
+elfloader = { path = "../elfloader"}
+
+
+[target.'cfg(not(target_env = "sgx"))'.dependencies]
+sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }

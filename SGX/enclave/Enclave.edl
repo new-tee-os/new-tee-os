@@ -1,0 +1,13 @@
+enclave {
+    from "sgx_tstd.edl" import *;
+    from "sgx_stdio.edl" import *;
+    from "sgx_backtrace.edl" import *;
+    from "sgx_tstdc.edl" import *;
+    trusted {
+        /* define ECALLs here. */
+        public sgx_status_t rt_main([user_check] uint8_t* sharemem , size_t len);
+    };
+    untrusted {
+        uint64_t ocall_syscall_write(size_t fd, [user_check] const char *buf, size_t count);
+    };
+};

@@ -24,13 +24,7 @@ fn main() {
             .arg("--sgxsdk=[SGXSDK] 'SGXSDK path'")
             .arg("-S --stack-size=[SSIZE] 'Stack size of sgx enclave'")
             .arg("-H --heap-size=[HSIZE]  'Heap size of sgx enclave'")
-            .arg("-m --mode=[SGXMODE] 'SGX mode, HW/SIM'"
-                // Arg::new("SGXMODE")
-                // .short('m')
-                // .long("mode")
-                // .takes_value(true)
-                // .about("SGX mode, HW/SIM")
-            )
+            .arg("-m --mode=[SGXMODE] 'SGX mode, HW/SIM'")
         )        
         .subcommand(
             App::new("run")
@@ -42,8 +36,7 @@ fn main() {
                 .index(1)
             )
             .arg("--sgxsdk=[SGXSDK] 'SGXSDK path'")
-            .arg("-hs --heap-size=[HSIZE]  'Heap size of sgx enclave'")
-            .arg("-ubp --user-bin=[UBPATH] 'Path of user bin'")
+            .arg("-u --user-bin=[UBPATH] 'Path of user bin'")
         )
         .get_matches();
 
@@ -66,15 +59,42 @@ fn main() {
                     .current_dir("/home/lx/Downloads/SGX/new-tee-os/sgx")//TODO######################
                     .envs(&filtered_env)
                     .args(&[" SGX_MODE=SIM","SGX_SDK=~/Downloads/SGX/sgxsdk"])
-                    // .args(&["SGX_SDK=",sdk])
                     .spawn().expect("Make failure");
                     return;
                 },
                 "keystone"=>{
 
+                    Command::new("cargo")
+                    .args(&["build","--release"])
+                    .envs(&filtered_env)
+                    .current_dir("./keystone-rt")
+                    .output()
+                    .expect("build kernel");
+
+                    Command::new("riscv64-unknown-elf-objcopy")
+                    .args(&["-O","binary"])
+                    .arg("target/riscv64gc-unknown-none-elf/release/keystone-rt")
+                    .arg("keystone-rt.bin")
+                    .current_dir("./keystone-rt")
+                    .envs(&filtered_env)
+                    .output()
+                    .expect("kernel to bin");
+
+                    Command::new("cargo")
+                    .args(&["build","--release"])
+                    .envs(&filtered_env)
+                    .current_dir("./keystone-rt-runner")
+                    .output()
+                    .expect("build runner");
+                    
                 },
                 "x86vm"=>{
-
+                    Command::new("cargo")
+                    .arg("install")
+                    .args(&["--path=","x86-vmm-qemu"])
+                    .envs(&filtered_env)
+                    .spawn()
+                    .expect("build runner");
                 },
                 _=>panic!("Unsupported environment!"),
             }
@@ -85,19 +105,20 @@ fn main() {
             match matches.value_of("ENV").unwrap(){
                 "sgx"=>{
                     if let Some(sdk)=matches.value_of("SGXSDK"){
-                        Command::new("source ")
-                        .arg(sdk.to_owned()+"/environment")
-                        .output()
-                        .expect("Source sdk environment.");                       
+                        Command::new("bash").arg("source").arg(sdk.to_owned()+"/environment").envs(&filtered_env).output().expect("Source sdk environment.");                    
                     }
-                    Command::new("cd sgx/bin").output();
-                    Command::new("./app").output();
+                    Command::new("app").current_dir("/home/lx/Downloads/SGX/new-tee-os/sgx/bin/").spawn().expect("run app");
                 },
                 "keystone"=>{
-
+                    println!("Use qemu to test the kernel");
                 },
                 "x86vm"=>{
-
+                    Command::new("cargo")
+                    .arg("run")
+                    .current_dir("x86-vm-kernel")
+                    .envs(&filtered_env)
+                    .spawn()
+                    .expect("running x86");
                 },
                 _=>panic!("Unsupported environment!"),
             }

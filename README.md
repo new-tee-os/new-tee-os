@@ -55,7 +55,7 @@ TEE是机密计算（Confidential Computing）的主要技术基础之一，后�
 - `enclave` ，是我们操作体统的内核部分，主要包含
   - `linux-abi` ，提供了相应的系统调用实现。
   - `sgx_rt` ，编译入口点，在其中通过 `Cargo.toml` 引用 `linux-abi` 并开启`sgx`平台的feature。
-  - `elfloader`，可替换的组件，用于提供特定的功能，`elfloader`负责提供ELF加载器。
+  - `elfloader`，可替换的组件，用于提供特定的功能，`elfloader`负责提供ELF加载器。 
 
 ### 兼容多TEE
 
@@ -152,6 +152,15 @@ Enclave exited with status 0
    - [incubator-teaclave-sgx-sdk](https://github.com/apache/incubator-teaclave-sgx-sdk)
 3. 将 `new-tee-os-sgx` 拷贝到目录 `incubator-teaclave-sgx-sdk/samplecode` 下，然后 `make` 编译。
 4. 在 `bin` 目录下就会有可执行文件 `app`。
+5. 如果碰到连接问题，尝试执行命令`source $(SDK_PATH)/environment`
+
+直接在linux上运行即可：
+```
+[+] Init Enclave Successful 156624572383234!
+[+] Shared memory allocated! Addr: 0X55b9b1815a60
+[:] SGX TEE 操作系统 HeapAddr: 0X7f955d31d000 ShareAddr: 0X55b9b1815a60
+[+] SGX TEE OS operating successfully...
+```
 
 ### x86 VM on QEMU
 
@@ -169,6 +178,10 @@ cargo run
 ```
 
 Cargo 将自动调用 `x86-vmm-qemu` 打包引导镜像文件并启动 QEMU。
+
+### 运行工具   nto
+
+我们实现了命令行工具，以统一的入口——`nto build`命令，编译内核和对应host os上的装载器，并且以`nto run`运行对应的内核。但是由于三种tee的底层不尽相同，在我们只对sgx和x86vm实现了run命令，而keystone需要根据启动的qemu的情况自己添加文件，并且进入到qemu内部执行
 
 ## 其他困难及解决方法
 
